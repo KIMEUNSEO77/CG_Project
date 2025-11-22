@@ -26,60 +26,83 @@ int currentStage = 0;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
-// bullet 생성 함수 (랜덤 패턴)
-void SpawnBullet()
+// bullet 생성 함수
+void SpawnBullet(int pattern)
 {
-	static std::mt19937 rng{ std::random_device{}() };
-	std::uniform_int_distribution<int> patternDist(0, 2);
-
-	int pattern = patternDist(rng);
-
 	Bullet b;
 	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f; // 현재 시간(초)
 	static int bulletCount = 0;
 	bulletCount++;
 
-	if (pattern == 0) // 원형 회전
+	// 원형 회전
+	if (pattern == 0)
 	{
 		int ringCount = 24;
 		float angle = glm::radians(360.0f * (bulletCount % ringCount) / ringCount);
-		float radius = 3.0f;
-		glm::vec3 pos = glm::vec3(radius * cos(angle), radius * sin(angle), 0.0f);
-		glm::vec3 vel = glm::normalize(pos) * 0.5f; // 원 밖으로 이동
+		float radius = 10.0f;
+		glm::vec3 pos = glm::vec3(radius * cos(angle), radius * sin(angle), -5.0f);
+		glm::vec3 vel = glm::normalize(pos) * -1.0f;
 		b.setPosition(pos);
 		b.setVelocity(vel);
-		b.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
-		b.setScale(glm::vec3(0.6f, 0.6f, 0.6f));
+		b.setColor(glm::vec3(1.0f, 0.7f, 0.7f));   // 연분홍
+		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
 	}
-	else if (pattern == 1) // 나선형
+	// 나선형
+	else if (pattern == 1)
 	{
-		float spiralAngle = glm::radians(30.0f * bulletCount);
-		float spiralRadius = 1.0f + 0.1f * bulletCount;
-		glm::vec3 pos = glm::vec3(spiralRadius * cos(spiralAngle), spiralRadius * sin(spiralAngle), 0.0f);
-		glm::vec3 vel = glm::vec3(-sin(spiralAngle), cos(spiralAngle), 0.0f) * 0.5f;
+		float spiralAngle = glm::radians(15.0f * bulletCount);
+		float spiralRadius = 0.01f * bulletCount;
+		glm::vec3 pos = glm::vec3(spiralRadius * cos(spiralAngle), spiralRadius * sin(spiralAngle), -5.0f);
+		glm::vec3 vel = glm::vec3(-sin(spiralAngle), cos(spiralAngle), 1.0f) * 0.5f;
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.5f, 0.2f));
 		b.setScale(glm::vec3(0.6f, 0.6f, 0.6f));
 	}
-	else // 물결
+
+	// 물결 패턴
+	else if (pattern == 2)
 	{
-		float waveX = -4.0f + 8.0f * ((bulletCount % 40) / 40.0f); // -4 ~ 4
+		float waveX = -4.0f + 16.0f * ((bulletCount % 10) / 10.0f); // -4 ~ 4
 		float waveY = 0.0f;
-		float waveZ = 0.0f;
+		float waveZ = -5.0f;
 		glm::vec3 pos = glm::vec3(waveX, waveY, waveZ);
 		glm::vec3 vel = glm::vec3(0.0f, 0.5f * sin(t + waveX), 1.0f); // y방향 + 파동
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.9f, 0.3f, 0.8f));
-		b.setScale(glm::vec3(0.3f, 0.3f, 0.3f));
+		b.setScale(glm::vec3(0.5f, 0.5f, 0.8f));
 	}
+	// 한 점에 있다가 퍼지는 패턴
+	else if (pattern == 3)
+	{
+		int bulletNum = 36; // 밀도
+		for (int i = 0; i < bulletNum; ++i) 
+		{
+			float angle = glm::radians(360.0f * i / bulletNum);
+			glm::vec3 vel = glm::vec3(cos(angle), sin(angle), 3.0f) * 0.7f;
+			Bullet b;
+			b.setPosition(glm::vec3(0.0f, 0.0f, -5.0f));
+			b.setVelocity(vel);
+			b.setColor(glm::vec3(0.5f, 1.0f, 1.0f));
+			b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
+			bullets.push_back(b);
+		}
+	}
+
+
 	bullets.push_back(b);
 }
 
 void BulletTimer(int value)
 {
-	SpawnBullet();
+	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+	if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
+	if (t > 5.0f && t < 6.0f) SpawnBullet(1); // 5~6초 사이에 1번 패턴
+	if (t > 6.0f && t < 9.0f) SpawnBullet(2); // 8~9초 사이에 2번 패턴
+	if (t > 10.0f && t < 13.0f) SpawnBullet(3); // 10~11초 사이에 3번 패턴
+ 
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
 }
@@ -113,7 +136,6 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'q': exit(0); break;   // quit
 	}
-	glutPostRedisplay();
 }
 
 int main(int argc, char** argv)
@@ -197,14 +219,14 @@ GLvoid drawScene()
 	GLint projLoc = glGetUniformLocation(shaderProgramID, "projection");
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 12.0f);
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
 
 	// x축 기준 -40도 회전 ( 위에서 아래로 보는 각도 )
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
+	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	//cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
 
 	glm::mat4 vTransform = glm::mat4(1.0f);
 	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
