@@ -118,6 +118,53 @@ void SpawnBullet(int pattern)
 		b.setColor(glm::vec3(0.0f, 1.0f, 0.7f));
 		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
 	}
+	// 위에서 대각선 방향으로 떨어지는 패턴
+	else if (pattern == 6)
+	{
+		glm::vec3 pos = glm::vec3(-3.0f + (bulletCount % 16), 3.0f, -3.0f);
+		glm::vec3 vel = glm::vec3(2.0f, -2.0f, 2.0f);
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
+	}
+	// 반대쪽 대각선
+	else if (pattern == 7)
+	{
+		glm::vec3 pos = glm::vec3(3.0f - (bulletCount % 16), 3.0f, -3.0f);
+		glm::vec3 vel = glm::vec3(-2.0f, -2.0f, 2.0f);
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
+	}
+
+	// 0번째 왼쪽 버전
+	else if (pattern == 8)
+	{
+		int ringCount = 24;
+		float angle = glm::radians(360.0f * (bulletCount % ringCount) / ringCount);
+		float radius = 10.0f;
+		glm::vec3 pos = glm::vec3(-5.0f + radius * cos(angle), radius * sin(angle), -5.0f);
+		glm::vec3 vel = glm::normalize(pos) * -1.0f;
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(1.0f, 0.3f, 0.3f));
+		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+	}
+		// 0번째 오른쪽 버전
+	else if (pattern == 9)
+	{
+		int ringCount = 24;
+		float angle = glm::radians(360.0f * (bulletCount % ringCount) / ringCount);
+		float radius = 10.0f;
+		glm::vec3 pos = glm::vec3(5.0f + radius * cos(angle), radius * sin(angle), -5.0f);
+		glm::vec3 vel = glm::normalize(pos) * -1.0f;
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(0.6f, 1.0f, 0.0f));
+		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+	}
 
 	bullets.push_back(b);
 }
@@ -133,8 +180,13 @@ void BulletTimer(int value)
 	if (t > 14.0f && t < 15.0f) SpawnBullet(4); // 14~15초 사이에 4번 패턴
 	if (t > 17.0f && t < 18.0f) SpawnBullet(0); // 0번 패턴
 	if (t > 20.0f && t < 21.0f) SpawnBullet(5); // 5번 패턴
-	if (t > 26.0f && t < 28.0f) SpawnBullet(2); // 2번 패턴
-	if (t > 30.0f && t < 32.0f) SpawnBullet(1); // 1번 패턴
+	if (t > 26.0f && t < 33.0f) SpawnBullet(2); // 2번 패턴
+	if (t > 30.0f && t < 31.0f) SpawnBullet(3); // 3번 패턴
+	if (t > 33.0f && t < 34.0f) SpawnBullet(3); // 3번 패턴
+	if (t > 33.0f && t < 36.0f) SpawnBullet(6); // 6번 패턴
+	if (t > 35.0f && t < 38.0f) SpawnBullet(7); // 7번 패턴
+	if (t > 38.0f && t < 45.0f) SpawnBullet(9); // 5번 패턴
+	if (t > 46.0f && t < 53.0f) SpawnBullet(8); // 4번 패턴
  
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
