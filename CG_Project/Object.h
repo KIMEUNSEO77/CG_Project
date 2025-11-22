@@ -14,17 +14,38 @@ protected:
 	glm::vec3 cameraPosition;
 	glm::vec3 cameraTarget;
 	glm::vec3 cameraUp;
+	glm::vec3 color;
+
+	glm::vec3 velocity;  // not same speed
 	
 public:
 	void update();
 	virtual void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) = 0;
-	void setPosition(float x, float y, float z)
+	void setPosition(glm::vec3 pos)
 	{
-		position = glm::vec3(x, y, z);
+		position = pos;
 	}
 	glm::vec3 getPosition()
 	{
 		return position;
+	}
+	void setVelocity(glm::vec3 vel)
+	{
+		velocity = vel;        
+		speed = glm::length(vel);
+	}
+	glm::vec3 getVelocity()
+	{
+		return velocity;
+	}
+	void setColor(glm::vec3 color)
+	{
+		// 색상 설정 (필요시 구현)
+		this->color = color;
+	}
+	glm::vec3 getColor()
+	{
+		return color;
 	}
 };
 
@@ -55,7 +76,8 @@ class Bullet : public Object
 private:
 	float damage;
 public:
-	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override {
+	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override 
+	{
 		// Bullet의 렌더링 구현
 	}
 };

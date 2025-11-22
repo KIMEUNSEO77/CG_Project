@@ -1,9 +1,10 @@
-#include <glew.h>
+﻿#include <glew.h>
 #include <freeglut.h>
 #include <freeglut_ext.h> 
 
 #include <iostream>
 #include <vector>
+#include <random>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -15,16 +16,68 @@
 
 #include "sphere_obj_load.h"
 
-
-//void make_vertexShaders();
-//void make_fragmentShaders();
-//GLuint make_shaderProgram();
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 
 Mesh gSphere;  // sphere obj
 
 Player player; // player object(temp)
+int currentStage = 0;   // current stage 0: title, 1, 2, 3
+
+std::vector<Bullet> bullets;  // bullet objects
+
+// bullet 생성 함수 (랜덤 패턴)
+void SpawnBullet()
+{
+	static std::mt19937 rng{ std::random_device{}() };
+	std::uniform_int_distribution<int> patternDist(0, 2);
+
+	int pattern = patternDist(rng);
+
+	Bullet b;
+	// 다양한 루틴 예시 (패턴별로 위치/속도/색상 등 다르게)
+	if (pattern == 0) 
+	{
+		// 원형 회전
+		b.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		b.setVelocity(glm::vec3(0.0f, -1.0f, 0.0f));
+		b.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+		// 기타 패턴별 속성 설정
+	}
+	else if (pattern == 1) 
+	{
+		// 나선형
+		b.setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+		b.setVelocity(glm::vec3(-0.5f, -1.0f, 0.0f));
+		b.setColor(glm::vec3(1.0f, 0.5f, 0.2f));
+	}
+	else 
+	{
+		// 물결
+		b.setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+		b.setVelocity(glm::vec3(0.5f, -1.0f, 0.0f));
+		b.setColor(glm::vec3(0.9f, 0.3f, 0.8f));
+	}
+	bullets.push_back(b);
+}
+
+void BulletTimer(int value)
+{
+	SpawnBullet();
+	glutPostRedisplay();
+	glutTimerFunc(16, BulletTimer, 0); 
+}
+
+void UpdateBullets()
+{
+	for (Bullet& b : bullets)
+	{
+		glm::vec3 pos = b.getPosition();
+		glm::vec3 vel = b.getVelocity();
+		pos += vel * 0.05f; // 속도에 따라 이동 (프레임당 0.05배)
+		b.setPosition(pos);
+	}
+}
 
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
@@ -62,6 +115,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
+	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
@@ -98,6 +152,8 @@ void DrawSphere(const Mesh& mesh, GLuint shaderProgram, const glm::mat4& model, 
 
 GLvoid drawScene()
 {
+	UpdateBullets();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -130,7 +186,7 @@ GLvoid drawScene()
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
 
-	// x�� ���� -40�� ȸ�� ( ������ �Ʒ��� ���� ���� )
+	// x축 기준 -40도 회전 ( 위에서 아래로 보는 각도 )
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
 
@@ -150,6 +206,13 @@ GLvoid drawScene()
 	tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
 	DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
 
+	// bullets (temp)
+	for (Bullet& b : bullets) 
+	{
+		glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
+		bulletModel = glm::scale(bulletModel, glm::vec3(0.3f)); // 탄환 크기
+		DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
+	}
 	
 	glutSwapBuffers();
 }
