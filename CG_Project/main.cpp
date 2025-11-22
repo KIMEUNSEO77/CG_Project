@@ -35,27 +35,40 @@ void SpawnBullet()
 	int pattern = patternDist(rng);
 
 	Bullet b;
-	// 다양한 루틴 예시 (패턴별로 위치/속도/색상 등 다르게)
-	if (pattern == 0) 
+	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f; // 현재 시간(초)
+	static int bulletCount = 0;
+	bulletCount++;
+
+	if (pattern == 0) // 원형 회전
 	{
-		// 원형 회전
-		b.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		b.setVelocity(glm::vec3(0.0f, -1.0f, 0.0f));
+		int ringCount = 24;
+		float angle = glm::radians(360.0f * (bulletCount % ringCount) / ringCount);
+		float radius = 3.0f;
+		glm::vec3 pos = glm::vec3(radius * cos(angle), radius * sin(angle), 0.0f);
+		glm::vec3 vel = glm::normalize(pos) * 0.5f; // 원 밖으로 이동
+		b.setPosition(pos);
+		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
-		// 기타 패턴별 속성 설정
 	}
-	else if (pattern == 1) 
+	else if (pattern == 1) // 나선형
 	{
-		// 나선형
-		b.setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
-		b.setVelocity(glm::vec3(-0.5f, -1.0f, 0.0f));
+		float spiralAngle = glm::radians(30.0f * bulletCount);
+		float spiralRadius = 1.0f + 0.1f * bulletCount;
+		glm::vec3 pos = glm::vec3(spiralRadius * cos(spiralAngle), spiralRadius * sin(spiralAngle), 0.0f);
+		glm::vec3 vel = glm::vec3(-sin(spiralAngle), cos(spiralAngle), 0.0f) * 0.5f;
+		b.setPosition(pos);
+		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.5f, 0.2f));
 	}
-	else 
+	else // 물결
 	{
-		// 물결
-		b.setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
-		b.setVelocity(glm::vec3(0.5f, -1.0f, 0.0f));
+		float waveX = -4.0f + 8.0f * ((bulletCount % 40) / 40.0f); // -4 ~ 4
+		float waveY = 0.0f;
+		float waveZ = 0.0f;
+		glm::vec3 pos = glm::vec3(waveX, waveY, waveZ);
+		glm::vec3 vel = glm::vec3(0.0f, -1.0f + 0.5f * sin(t + waveX), 0.0f); // y방향 + 파동
+		b.setPosition(pos);
+		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.9f, 0.3f, 0.8f));
 	}
 	bullets.push_back(b);
