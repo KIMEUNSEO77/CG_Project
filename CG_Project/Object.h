@@ -10,8 +10,6 @@ class Object
 protected:
 	float hp;
 	float speed;
-	int dirX;  // 좌우 이동 방향
-	int dirY;  // 상하 이동 방향
 	glm::vec3 position;
 	glm::vec3 cameraPosition;
 	glm::vec3 cameraTarget;
@@ -23,6 +21,10 @@ public:
 	void setPosition(float x, float y, float z)
 	{
 		position = glm::vec3(x, y, z);
+	}
+	glm::vec3 getPosition()
+	{
+		return position;
 	}
 };
 
@@ -38,8 +40,6 @@ public:
 		// 기본값 설정
 		hp = 100.0f;
 		speed = 0.1f;
-		dirX = 0;
-		dirY = 0;
 		position = glm::vec3(0.0f, 0.0f, 0.0f);
 		power = 10.0f;
 	}
