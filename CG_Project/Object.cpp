@@ -10,10 +10,10 @@ void Object::update()
 
 }
 
-void Player::move(float dx, float dy)
+void Player::move(float dx, float dz)
 {
 	position.x += dx * speed;
-	position.y += dy * speed;
+	position.z += dz * speed;
 }
 
 void Player::damaged(float damage)

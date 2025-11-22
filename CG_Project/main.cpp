@@ -37,10 +37,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		player.move(1.0f, 0.0f); // move right
 		break;
 	case 'w':
-		player.move(0.0f, 1.0f); // move up
+		player.move(0.0f, -1.0f); // move front
 		break;
 	case 's':
-		player.move(0.0f, -1.0f); // move down
+		player.move(0.0f, 1.0f); // move back
 		break;
 	case 'q': exit(0); break;   // quit
 	}
@@ -112,7 +112,7 @@ GLvoid drawScene()
 
 	glm::vec3 lightBasePos(3.0f, 0.0f, 2.5f);
 	glm::mat4 lightRotate = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	glm::vec3 lightPos = glm::vec3(lightRotate* glm::vec4(lightBasePos, 1.0f));
+	glm::vec3 lightPos = glm::vec3(glm::vec4(lightBasePos, 1.0f));
 
 	GLint uLightPos = glGetUniformLocation(shaderProgramID, "lightPos");     // light position
 	GLuint viewPosLoc = glGetUniformLocation(shaderProgramID, "viewPos");    // camera position
