@@ -21,13 +21,31 @@
 //GLuint make_shaderProgram();
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
-void setupBuffers();
-
-// ?
-std::vector<float> vertices;
-GLuint VAO, VBO;
 
 Mesh gSphere;  // sphere obj
+
+Player player; // player object(temp)
+
+GLvoid Keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'a':
+		player.move(-1.0f, 0.0f); // move left
+		break;
+	case 'd':
+		player.move(1.0f, 0.0f); // move right
+		break;
+	case 'w':
+		player.move(0.0f, 1.0f); // move up
+		break;
+	case 's':
+		player.move(0.0f, -1.0f); // move down
+		break;
+	case 'q': exit(0); break;   // quit
+	}
+	glutPostRedisplay();
+}
 
 int main(int argc, char** argv)
 {
@@ -43,6 +61,7 @@ int main(int argc, char** argv)
 	// callback 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
+	glutKeyboardFunc(Keyboard);
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
@@ -57,17 +76,6 @@ int main(int argc, char** argv)
 		std::cerr << "Failed to load sphere.obj\n";
 		return 1;
 	}
-
-	// buffer setting
-	setupBuffers();
-
-	// vertex data setting
-	vertices = {
-		// position             // color
-		 0.0f,  0.5f, -2.0f,  1.0f, 0.0f, 0.0f,  // top vertex (red)
-		-0.5f, -0.5f, -2.0f,  0.0f, 1.0f, 0.0f,  // left vertex (green)
-		 0.5f, -0.5f, -2.0f,  0.0f, 0.0f, 1.0f   // right vertex (blue)
-	};
 
 	glutMainLoop();
 
@@ -137,26 +145,10 @@ GLvoid drawScene()
 	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, &pTransform[0][0]);
 
-	Player player;  // ?
-	Object* obj = &player;
-
-	// center sphere
-	glm::mat4 centerM = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.0f));
-	centerM = glm::scale(centerM, glm::vec3(1.5f, 1.5f, 1.5f));
-	DrawSphere(gSphere, shaderProgramID, centerM, glm::vec3(0.8f, 0.0f, 0.0f));
-
-
-	// VBO
-	if (!vertices.empty()) {
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
-			vertices.data(), GL_STATIC_DRAW);
-
-		obj->render(shaderProgramID, VAO, VBO, vertices);
-
-		glBindVertexArray(0);
-	}
+	// temp player
+	glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
+	tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
+	DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
 
 	
 	glutSwapBuffers();
@@ -167,21 +159,4 @@ GLvoid Reshape(int w, int h)
 	width = w;
 	height = h;
 	glViewport(0, 0, w, h);
-}
-
-void setupBuffers()
-{
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
 }
