@@ -27,13 +27,8 @@ int currentStage = 0;   // current stage 0: title, 1, 2, 3
 std::vector<Bullet> bullets;  // bullet objects
 
 // bullet 생성 함수 (랜덤 패턴)
-void SpawnBullet()
+void SpawnBullet(int pattern)
 {
-	static std::mt19937 rng{ std::random_device{}() };
-	std::uniform_int_distribution<int> patternDist(0, 2);
-
-	int pattern = patternDist(rng);
-
 	Bullet b;
 	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f; // 현재 시간(초)
 	static int bulletCount = 0;
@@ -64,7 +59,7 @@ void SpawnBullet()
 	}
 	else // 물결
 	{
-		float waveX = -4.0f + 8.0f * ((bulletCount % 40) / 40.0f); // -4 ~ 4
+		float waveX = -4.0f + 16.0f * ((bulletCount % 10) / 10.0f); // -4 ~ 4
 		float waveY = 0.0f;
 		float waveZ = 0.0f;
 		glm::vec3 pos = glm::vec3(waveX, waveY, waveZ);
@@ -79,7 +74,12 @@ void SpawnBullet()
 
 void BulletTimer(int value)
 {
-	SpawnBullet();
+	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+	if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
+	if (t > 5.0f && t < 6.0f) SpawnBullet(1); // 5~6초 사이에 1번 패턴
+	if (t > 8.0f && t < 9.0f) SpawnBullet(2); // 8~9초 사이에 2번 패턴
+ 
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
 }
@@ -113,7 +113,6 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'q': exit(0); break;   // quit
 	}
-	glutPostRedisplay();
 }
 
 int main(int argc, char** argv)
