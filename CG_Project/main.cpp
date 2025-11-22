@@ -121,7 +121,7 @@ void SpawnBullet(int pattern)
 	// 위에서 대각선 방향으로 떨어지는 패턴
 	else if (pattern == 6)
 	{
-		glm::vec3 pos = glm::vec3(-2.5f + (bulletCount % 16), 5.0f, -3.0f);
+		glm::vec3 pos = glm::vec3(-2.5f + (bulletCount % 16), 5.0f, -4.0f);
 		glm::vec3 vel = glm::vec3(1.0f, -2.0f, 2.0f);
 		b.setPosition(pos);
 		b.setVelocity(vel);
@@ -131,7 +131,7 @@ void SpawnBullet(int pattern)
 	// 반대쪽 대각선
 	else if (pattern == 7)
 	{
-		glm::vec3 pos = glm::vec3(2.5f - (bulletCount % 16), 5.0f, -3.0f);
+		glm::vec3 pos = glm::vec3(2.5f - (bulletCount % 16), 5.0f, -4.0f);
 		glm::vec3 vel = glm::vec3(-1.0f, -2.0f, 2.0f);
 		b.setPosition(pos);
 		b.setVelocity(vel);
