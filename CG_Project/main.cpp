@@ -121,21 +121,21 @@ void SpawnBullet(int pattern)
 	// 위에서 대각선 방향으로 떨어지는 패턴
 	else if (pattern == 6)
 	{
-		glm::vec3 pos = glm::vec3(-3.0f + (bulletCount % 16), 3.0f, -3.0f);
-		glm::vec3 vel = glm::vec3(2.0f, -2.0f, 2.0f);
+		glm::vec3 pos = glm::vec3(-2.5f + (bulletCount % 16), 5.0f, -3.0f);
+		glm::vec3 vel = glm::vec3(1.0f, -2.0f, 2.0f);
 		b.setPosition(pos);
 		b.setVelocity(vel);
-		b.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		b.setColor(glm::vec3(0.8f, 0.8f, 1.0f));
 		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
 	}
 	// 반대쪽 대각선
 	else if (pattern == 7)
 	{
-		glm::vec3 pos = glm::vec3(3.0f - (bulletCount % 16), 3.0f, -3.0f);
-		glm::vec3 vel = glm::vec3(-2.0f, -2.0f, 2.0f);
+		glm::vec3 pos = glm::vec3(2.5f - (bulletCount % 16), 5.0f, -3.0f);
+		glm::vec3 vel = glm::vec3(-1.0f, -2.0f, 2.0f);
 		b.setPosition(pos);
 		b.setVelocity(vel);
-		b.setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		b.setColor(glm::vec3(0.8f, 0.8f, 1.0f));
 		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
 	}
 
@@ -165,6 +165,31 @@ void SpawnBullet(int pattern)
 		b.setColor(glm::vec3(0.6f, 1.0f, 0.0f));
 		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
 	}
+	// 기본 (랜덤한 x좌표에서 일자로 날라옴)
+	else if (pattern == 10)
+	{
+		float randX = -8.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(16.0f)));
+		glm::vec3 pos = glm::vec3(randX, 0.0f, -20.0f);
+		glm::vec3 vel = glm::vec3(0.0f, 0.0f, 3.0f);
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(0.8f, 1.0f, 0.8f));
+		b.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+
+	// 파동 없는 물결
+	else if (pattern == 11)
+	{
+		float waveX = -4.0f + 25.0f * ((bulletCount % 10) / 10.0f); // -4 ~ 4
+		float waveY = 0.0f;
+		float waveZ = -5.0f;
+		glm::vec3 pos = glm::vec3(waveX, waveY, waveZ);
+		glm::vec3 vel = glm::vec3(0.0f, 0.0f, 2.0f); // y방향 파동 없음
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(1.0f, 0.8f, 0.8));
+		b.setScale(glm::vec3(0.4f, 0.4f, 0.4f));
+	}
 
 	bullets.push_back(b);
 }
@@ -172,11 +197,13 @@ void SpawnBullet(int pattern)
 void BulletTimer(int value)
 {
 	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-
+	// 시간에 따른 패턴 변경
+	if (t > 0.0f && t < 0.2f) SpawnBullet(10);
 	if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
 	if (t > 5.0f && t < 6.0f) SpawnBullet(1); // 5~6초 사이에 1번 패턴
 	if (t > 6.0f && t < 9.0f) SpawnBullet(2); // 8~9초 사이에 2번 패턴
 	if (t > 10.0f && t < 13.0f) SpawnBullet(3); // 10~11초 사이에 3번 패턴
+	if (t > 13.0f && t < 13.2f) SpawnBullet(10); 
 	if (t > 14.0f && t < 15.0f) SpawnBullet(4); // 14~15초 사이에 4번 패턴
 	if (t > 17.0f && t < 18.0f) SpawnBullet(0); // 0번 패턴
 	if (t > 20.0f && t < 21.0f) SpawnBullet(5); // 5번 패턴
@@ -185,8 +212,10 @@ void BulletTimer(int value)
 	if (t > 33.0f && t < 34.0f) SpawnBullet(3); // 3번 패턴
 	if (t > 33.0f && t < 36.0f) SpawnBullet(6); // 6번 패턴
 	if (t > 35.0f && t < 38.0f) SpawnBullet(7); // 7번 패턴
+	if (t > 36.0f && t < 36.2f) SpawnBullet(10); 
 	if (t > 38.0f && t < 45.0f) SpawnBullet(9); // 5번 패턴
 	if (t > 46.0f && t < 53.0f) SpawnBullet(8); // 4번 패턴
+	if (t > 58.0f && t < 63.0f) SpawnBullet(11); // 11번 패턴
  
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
