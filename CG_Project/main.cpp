@@ -26,6 +26,9 @@ int currentStage = 0;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
+float angleCameraY = 0.0f; // 카메라 Y축 각도(디버깅 위해)
+bool rotatingCamera = false; // 카메라 회전 여부
+
 // bullet 생성 함수
 void SpawnBullet(int pattern)
 {
@@ -67,10 +70,10 @@ void SpawnBullet(int pattern)
 		float waveY = 0.0f;
 		float waveZ = -5.0f;
 		glm::vec3 pos = glm::vec3(waveX, waveY, waveZ);
-		glm::vec3 vel = glm::vec3(0.0f, 0.5f * sin(t + waveX), 1.0f); // y방향 + 파동
+		glm::vec3 vel = glm::vec3(0.0f, 0.5f * sin(t + waveX), 2.0f); // y방향 + 파동
 		b.setPosition(pos);
 		b.setVelocity(vel);
-		b.setColor(glm::vec3(0.9f, 0.3f, 0.8f));
+		b.setColor(glm::vec3(0.2f, 0.2f, 0.8f));
 		b.setScale(glm::vec3(0.5f, 0.5f, 0.8f));
 	}
 	// 한 점에 있다가 퍼지는 패턴
@@ -89,7 +92,32 @@ void SpawnBullet(int pattern)
 			bullets.push_back(b);
 		}
 	}
-
+	// 0번째 왼쪽 버전
+	else if (pattern == 4)
+	{
+		int ringCount = 24;
+		float angle = glm::radians(360.0f * (bulletCount % ringCount) / ringCount);
+		float radius = 10.0f;
+		glm::vec3 pos = glm::vec3(-5.0f + radius * cos(angle), radius * sin(angle), -5.0f);
+		glm::vec3 vel = glm::normalize(pos) * -1.0f;
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(1.0f, 0.0f, 0.7f));
+		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+	}
+	// 0번째 오른쪽 버전
+	else if (pattern == 5)
+	{
+		int ringCount = 24;
+		float angle = glm::radians(360.0f * (bulletCount % ringCount) / ringCount);
+		float radius = 10.0f;
+		glm::vec3 pos = glm::vec3(5.0f + radius * cos(angle), radius * sin(angle), -5.0f);
+		glm::vec3 vel = glm::normalize(pos) * -1.0f;
+		b.setPosition(pos);
+		b.setVelocity(vel);
+		b.setColor(glm::vec3(0.0f, 1.0f, 0.7f));
+		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+	}
 
 	bullets.push_back(b);
 }
@@ -102,6 +130,11 @@ void BulletTimer(int value)
 	if (t > 5.0f && t < 6.0f) SpawnBullet(1); // 5~6초 사이에 1번 패턴
 	if (t > 6.0f && t < 9.0f) SpawnBullet(2); // 8~9초 사이에 2번 패턴
 	if (t > 10.0f && t < 13.0f) SpawnBullet(3); // 10~11초 사이에 3번 패턴
+	if (t > 14.0f && t < 15.0f) SpawnBullet(4); // 14~15초 사이에 4번 패턴
+	if (t > 17.0f && t < 18.0f) SpawnBullet(0); // 0번 패턴
+	if (t > 20.0f && t < 21.0f) SpawnBullet(5); // 5번 패턴
+	if (t > 26.0f && t < 28.0f) SpawnBullet(2); // 2번 패턴
+	if (t > 30.0f && t < 32.0f) SpawnBullet(1); // 1번 패턴
  
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
@@ -134,6 +167,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 's':
 		player.move(0.0f, 1.0f); // move back
 		break;
+	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
 	}
 }
@@ -222,6 +256,9 @@ GLvoid drawScene()
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angleCameraY), glm::vec3(0.0f, 1.0f, 0.0f));
+	cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
 
 	// x축 기준 -40도 회전 ( 위에서 아래로 보는 각도 )
