@@ -17,6 +17,7 @@ protected:
 	glm::vec3 color;
 
 	glm::vec3 velocity;  // not same speed
+	glm::vec3 scale;
 	
 public:
 	void update();
@@ -46,6 +47,14 @@ public:
 	glm::vec3 getColor()
 	{
 		return color;
+	}
+	void setScale(glm::vec3 scale)
+	{
+		this->scale = scale;
+	}
+	glm::vec3 getScale()
+	{
+		return scale;
 	}
 };
 

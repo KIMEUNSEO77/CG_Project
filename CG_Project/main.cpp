@@ -49,6 +49,7 @@ void SpawnBullet()
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+		b.setScale(glm::vec3(0.6f, 0.6f, 0.6f));
 	}
 	else if (pattern == 1) // 나선형
 	{
@@ -59,6 +60,7 @@ void SpawnBullet()
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.5f, 0.2f));
+		b.setScale(glm::vec3(0.6f, 0.6f, 0.6f));
 	}
 	else // 물결
 	{
@@ -66,10 +68,11 @@ void SpawnBullet()
 		float waveY = 0.0f;
 		float waveZ = 0.0f;
 		glm::vec3 pos = glm::vec3(waveX, waveY, waveZ);
-		glm::vec3 vel = glm::vec3(0.0f, -1.0f + 0.5f * sin(t + waveX), 0.0f); // y방향 + 파동
+		glm::vec3 vel = glm::vec3(0.0f, 0.5f * sin(t + waveX), 1.0f); // y방향 + 파동
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.9f, 0.3f, 0.8f));
+		b.setScale(glm::vec3(0.3f, 0.3f, 0.3f));
 	}
 	bullets.push_back(b);
 }
@@ -194,7 +197,7 @@ GLvoid drawScene()
 	GLint projLoc = glGetUniformLocation(shaderProgramID, "projection");
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 12.0f);
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
@@ -223,7 +226,7 @@ GLvoid drawScene()
 	for (Bullet& b : bullets) 
 	{
 		glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
-		bulletModel = glm::scale(bulletModel, glm::vec3(0.3f)); // 탄환 크기
+		bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
 		DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
 	}
 	
