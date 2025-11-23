@@ -29,12 +29,12 @@ std::vector<Bullet> bullets;  // bullet objects
 
 // bullet 색상을 위한 random 엔진 - 색상은 밝은 색상 위주로
 std::default_random_engine generator(static_cast<unsigned int>(time(0)));
-std::uniform_real_distribution<float> colorDistribution(0.7f, 1.0f);
+std::uniform_real_distribution<float> colorDistribution(0.6f, 1.0f);
 
 // bullet 생성 y좌표 범위
-std::uniform_real_distribution<float> bulletYDistribution(-18.0f, 25.0f);
+std::uniform_real_distribution<float> bulletYDistribution(-19.50f, 25.0f);
 // bullet 생성 z좌표 범위
-std::uniform_real_distribution<float> bulletZDistribution(-90.0f, -70.0f);
+std::uniform_real_distribution<float> bulletZDistribution(-90.0f, -45.0f);
 
 float angleCameraY = 0.0f; // 카메라 Y축 각도(디버깅 위해)
 bool rotatingCamera = false; // 카메라 회전 여부
@@ -303,9 +303,9 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
 	// bullet insert
-	for (int i = 0; i < 288; ++i)
+	for (int i = 0; i < 144 * 3; ++i)
 	{
-		float xgap = static_cast <float>(i / 2) * 2;
+		float xgap = static_cast <float>(i / 3) * 2;
 		Bullet* b = new Bullet();
 		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
@@ -399,7 +399,13 @@ GLvoid drawScene()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &mTransform[0][0]);
 
 	glm::mat4 pTransform = glm::mat4(1.0f);
-	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
+	if (currentStage == 0) {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
+	}
+	else {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	}
+	
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, &pTransform[0][0]);
 
 	// player.render를 사용해서 그리기 - player의 mesh를 등록 후 render 호출
