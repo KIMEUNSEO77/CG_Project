@@ -22,25 +22,28 @@ void Player::damaged(float damage)
 		hp -= damage;
 }
 
-void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) // 렌더링 할 때 넘겨줘야 하는 값들 - shaderProgramID, VAO, VBO, vertices, 정점 개수
+void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices)
 {
-	unsigned int modelLocation = glGetUniformLocation(shaderProgramID, "modelTransform");
+	// Transform 설정 - scale 멤버 변수 사용
 	glm::mat4 modelTransform = glm::mat4(1.0f);
 	modelTransform = glm::translate(modelTransform, position);
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelTransform[0][0]);
+	modelTransform = glm::scale(modelTransform, scale);
+	modelTransform = glm::rotate(modelTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // x축 기준 -90도 회전
+	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &modelTransform[0][0]);
 
-	// Player 클래스의 렌더링 코드 작성
-	if (!vertices.empty()) {
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
-			vertices.data(), GL_STATIC_DRAW);
+	// 색상 설정
+	GLint colorLoc = glGetUniformLocation(shaderProgramID, "objectColor");
+	glUniform3f(colorLoc, color.x, color.y, color.z);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glBindVertexArray(0);
-	}
-
+	// VAO와 VBO는 이미 main.cpp에서 바인드되어 있으므로
+	// 바로 그리기만 하면 됨
+	// gPlayer.count를 외부에서 받아야 하지만, 
+	// Mesh 구조를 보면 airplane.obj는 대략 8448개 정점
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glDrawArrays(GL_TRIANGLES, 0, 8448);
+	glBindVertexArray(0);
 }
 
 void Bullet::update_first_paze(float deltaTime)
