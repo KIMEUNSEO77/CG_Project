@@ -84,10 +84,9 @@ class Bullet : public Object
 {
 private:
 	float damage;
+	float vy = 0.0f; // y축 속도 (중력 적용용)
 public:
-	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override 
-	{
-		// Bullet의 렌더링 구현
-	}
+	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override;
+	void update_first_paze(float deltaTime);
 };
 
