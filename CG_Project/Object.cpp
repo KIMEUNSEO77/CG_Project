@@ -79,11 +79,11 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelTransform[0][0]);
 
 
-	// center sphere
-	glm::mat4 centerM = glm::translate(glm::mat4(1.0f), position);
-	centerM = glm::scale(centerM, glm::vec3(1.5f, 1.5f, 1.5f));
+	// bulletModel
+	glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), position);  // sphere position
+	bulletModel = glm::scale(bulletModel, scale);   // sphere scale
 
-	modelTransform = centerM;
+	modelTransform = bulletModel;
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelTransform[0][0]);
 
 	unsigned int colorLocation = glGetUniformLocation(shaderProgramID, "objectColor");
