@@ -430,14 +430,10 @@ GLvoid drawScene()
 	
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, &pTransform[0][0]);
 
-	// player.render를 사용해서 그리기 - player의 mesh를 등록 후 render 호출
-
 	// temp player
 	glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
 	tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
 	DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
-
-	// bullet.render를 사용해서 그리기 - bullet의 mesh를 등록 후 render 호출
 
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
