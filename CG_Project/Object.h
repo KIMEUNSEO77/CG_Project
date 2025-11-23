@@ -84,10 +84,27 @@ class Bullet : public Object
 {
 private:
 	float damage;
+	float vy = 0.0f; // y축 속도 (중력 적용용)
+	static int sharedMeshCount;  // 공유 메쉬의 vertex count
+
 public:
-	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override 
+	Bullet()
 	{
-		// Bullet의 렌더링 구현
+		damage = 10.0f;
+		vy = 0.0f;
+		position = glm::vec3(0.0f, 0.0f, 0.0f);
+		velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scale = glm::vec3(1.5f, 1.5f, 1.5f);
 	}
+
+	// 모든 Bullet이 공유할 메쉬 정보 설정
+	static void SetSharedMesh(int count)
+	{
+		sharedMeshCount = count;
+	}
+
+	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override;
+	void update_first_paze(float deltaTime);
 };
 

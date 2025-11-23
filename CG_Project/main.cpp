@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <ctime>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -26,10 +27,21 @@ int currentStage = 0;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
+// bullet 색상을 위한 random 엔진 - 색상은 밝은 색상 위주로
+std::default_random_engine generator(static_cast<unsigned int>(time(0)));
+std::uniform_real_distribution<float> colorDistribution(0.6f, 1.0f);
+
+// bullet 생성 y좌표 범위
+std::uniform_real_distribution<float> bulletYDistribution(-19.50f, 25.0f);
+// bullet 생성 z좌표 범위
+std::uniform_real_distribution<float> bulletZDistribution(-90.0f, -45.0f);
+
 float angleCameraY = 0.0f; // 카메라 Y축 각도(디버깅 위해)
 bool rotatingCamera = false; // 카메라 회전 여부
 
-// bullet 생성 함수
+clock_t lastTime;  // 이전 프레임 시간
+
+// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
 {
 	Bullet b;
@@ -221,6 +233,23 @@ void BulletTimer(int value)
 	glutTimerFunc(16, BulletTimer, 0); 
 }
 
+// 1,2페이즈에 사용할 타이머
+void firstTimer(int value)
+{
+	clock_t currentTime = clock();
+	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;	
+	lastTime = currentTime;
+
+	// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+	for ( auto& b : bullets)
+	{
+		b.update_first_paze(deltaTime); 
+	}
+
+	glutPostRedisplay();
+	glutTimerFunc(16, firstTimer, 0);
+}
+
 void UpdateBullets()
 {
 	for (Bullet& b : bullets)
@@ -268,10 +297,22 @@ int main(int argc, char** argv)
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
-	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
+	//glutTimerFunc(16, BulletTimer, 0); // start bullet timer
+	glutTimerFunc(16, firstTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
+	// bullet insert
+	for (int i = 0; i < 144 * 3; ++i)
+	{
+		float xgap = static_cast <float>(i / 3) * 2;
+		Bullet* b = new Bullet();
+		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
+		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+		b->setColor(color1);
+		bullets.push_back(*b);
+	}
+	
 
 	make_vertexShaders();
 	make_fragmentShaders();
@@ -334,12 +375,16 @@ GLvoid drawScene()
 	GLint projLoc = glGetUniformLocation(shaderProgramID, "projection");
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
 
+	
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
+	if (currentStage == 0) {
+		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	}
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angleCameraY), glm::vec3(0.0f, 1.0f, 0.0f));
-	cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
+	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angleCameraY), glm::vec3(0.0f, 1.0f, 0.0f));
+	//cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
 
 	// x축 기준 -40도 회전 ( 위에서 아래로 보는 각도 )
@@ -354,22 +399,40 @@ GLvoid drawScene()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &mTransform[0][0]);
 
 	glm::mat4 pTransform = glm::mat4(1.0f);
-	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	if (currentStage == 0) {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
+	}
+	else {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	}
+	
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, &pTransform[0][0]);
+
+	// player.render를 사용해서 그리기 - player의 mesh를 등록 후 render 호출
 
 	// temp player
 	glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
 	tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
 	DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
 
+	// bullet.render를 사용해서 그리기 - bullet의 mesh를 등록 후 render 호출
+
+	glBindVertexArray(gSphere.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
+
+	std::vector<float> bulletVertices; // temp
+
 	// bullets (temp)
 	for (Bullet& b : bullets) 
 	{
-		glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
-		bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
-		DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
+		//glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
+		//bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
+		//DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
+		b.render(shaderProgramID, gSphere.vao, gSphere.vbo, bulletVertices);
 	}
 	
+	glBindVertexArray(0);
+
 	glutSwapBuffers();
 }
 

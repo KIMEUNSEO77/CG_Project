@@ -142,6 +142,9 @@
     <ClInclude Include="shaderMaker.h" />
     <ClInclude Include="sphere_obj_load.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="fragment.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
