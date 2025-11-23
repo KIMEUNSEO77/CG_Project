@@ -243,6 +243,17 @@ void BulletTimer(int value)
 		if (t > 38.0f && t < 45.0f) SpawnBullet(9); // 5번 패턴
 		if (t > 46.0f && t < 53.0f) SpawnBullet(8); // 4번 패턴
 		if (t > 58.0f && t < 63.0f) SpawnBullet(11); // 11번 패턴
+		if (t > 61.0f && t < 66.0f) SpawnBullet(2); // 2번 패턴
+		if (t > 65.0f && t < 68.0f) SpawnBullet(3); // 3번 패턴
+		if (t > 68.0f && t < 68.2f) SpawnBullet(10);
+		if (t > 70.0f && t < 75.0f) SpawnBullet(0); // 0번 패턴
+		if (t > 73.0f && t < 78.0f) SpawnBullet(7); // 7번 패턴
+		if (t > 76.0f && t < 81.0f) SpawnBullet(6); // 6번 패턴
+		if (t > 80.0f && t < 83.0f) SpawnBullet(5); // 5번 패턴
+		if (t > 85.0f && t < 88.0f) SpawnBullet(4); // 4번 패턴
+		if (t > 87.0f && t < 87.2f) SpawnBullet(10);
+		if (t > 88.0f && t < 90.0f) SpawnBullet(11); // 11번 패턴
+		if (t > 87.0f && t < 90.0f) SpawnBullet(3); // 3번 패턴
 	}
  
 	glutPostRedisplay();
