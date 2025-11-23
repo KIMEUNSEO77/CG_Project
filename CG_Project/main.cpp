@@ -23,7 +23,7 @@ GLvoid Reshape(int w, int h);
 Mesh gSphere;  // sphere obj
 
 Player player; // player object(temp)
-int currentStage = 0;   // current stage 0: title, 1, 2, 3
+int currentStage = 3;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -208,32 +208,48 @@ void SpawnBullet(int pattern)
 
 void BulletTimer(int value)
 {
-	float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-	// 시간에 따른 패턴 변경
-	if (t > 0.0f && t < 0.2f) SpawnBullet(10);
-	if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
-	if (t > 5.0f && t < 6.0f) SpawnBullet(1); // 5~6초 사이에 1번 패턴
-	if (t > 6.0f && t < 9.0f) SpawnBullet(2); // 8~9초 사이에 2번 패턴
-	if (t > 10.0f && t < 13.0f) SpawnBullet(3); // 10~11초 사이에 3번 패턴
-	if (t > 13.0f && t < 13.2f) SpawnBullet(10); 
-	if (t > 14.0f && t < 15.0f) SpawnBullet(4); // 14~15초 사이에 4번 패턴
-	if (t > 17.0f && t < 18.0f) SpawnBullet(0); // 0번 패턴
-	if (t > 20.0f && t < 21.0f) SpawnBullet(5); // 5번 패턴
-	if (t > 26.0f && t < 33.0f) SpawnBullet(2); // 2번 패턴
-	if (t > 30.0f && t < 31.0f) SpawnBullet(3); // 3번 패턴
-	if (t > 33.0f && t < 34.0f) SpawnBullet(3); // 3번 패턴
-	if (t > 33.0f && t < 36.0f) SpawnBullet(6); // 6번 패턴
-	if (t > 35.0f && t < 38.0f) SpawnBullet(7); // 7번 패턴
-	if (t > 36.0f && t < 36.2f) SpawnBullet(10); 
-	if (t > 38.0f && t < 45.0f) SpawnBullet(9); // 5번 패턴
-	if (t > 46.0f && t < 53.0f) SpawnBullet(8); // 4번 패턴
-	if (t > 58.0f && t < 63.0f) SpawnBullet(11); // 11번 패턴
+	if (currentStage == 1)
+	{
+		clock_t currentTime = clock();
+		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
+		lastTime = currentTime;
+
+		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+		for (auto& b : bullets)
+		{
+			b.update_first_paze(deltaTime);
+		}
+	}
+	if (currentStage == 3)
+	{
+		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+		// 시간에 따른 패턴 변경
+		if (t > 0.0f && t < 0.2f) SpawnBullet(10);
+		if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
+		if (t > 5.0f && t < 6.0f) SpawnBullet(1); // 5~6초 사이에 1번 패턴
+		if (t > 6.0f && t < 9.0f) SpawnBullet(2); // 8~9초 사이에 2번 패턴
+		if (t > 10.0f && t < 13.0f) SpawnBullet(3); // 10~11초 사이에 3번 패턴
+		if (t > 13.0f && t < 13.2f) SpawnBullet(10);
+		if (t > 14.0f && t < 15.0f) SpawnBullet(4); // 14~15초 사이에 4번 패턴
+		if (t > 17.0f && t < 18.0f) SpawnBullet(0); // 0번 패턴
+		if (t > 20.0f && t < 21.0f) SpawnBullet(5); // 5번 패턴
+		if (t > 26.0f && t < 33.0f) SpawnBullet(2); // 2번 패턴
+		if (t > 30.0f && t < 31.0f) SpawnBullet(3); // 3번 패턴
+		if (t > 33.0f && t < 34.0f) SpawnBullet(3); // 3번 패턴
+		if (t > 33.0f && t < 36.0f) SpawnBullet(6); // 6번 패턴
+		if (t > 35.0f && t < 38.0f) SpawnBullet(7); // 7번 패턴
+		if (t > 36.0f && t < 36.2f) SpawnBullet(10);
+		if (t > 38.0f && t < 45.0f) SpawnBullet(9); // 5번 패턴
+		if (t > 46.0f && t < 53.0f) SpawnBullet(8); // 4번 패턴
+		if (t > 58.0f && t < 63.0f) SpawnBullet(11); // 11번 패턴
+	}
  
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
 }
 
 // 1,2페이즈에 사용할 타이머
+/*
 void firstTimer(int value)
 {
 	clock_t currentTime = clock();
@@ -249,6 +265,7 @@ void firstTimer(int value)
 	glutPostRedisplay();
 	glutTimerFunc(16, firstTimer, 0);
 }
+*/
 
 void UpdateBullets()
 {
@@ -258,6 +275,19 @@ void UpdateBullets()
 		glm::vec3 vel = b.getVelocity();
 		pos += vel * 0.05f; // 속도에 따라 이동 (프레임당 0.05배)
 		b.setPosition(pos);
+	}
+}
+
+void CreateBulletPaze_1()
+{
+	for (int i = 0; i < 144 * 3; ++i)
+	{
+		float xgap = static_cast <float>(i / 3) * 2;
+		Bullet* b = new Bullet();
+		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
+		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+		b->setColor(color1);
+		bullets.push_back(*b);
 	}
 }
 
@@ -297,21 +327,13 @@ int main(int argc, char** argv)
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
-	//glutTimerFunc(16, BulletTimer, 0); // start bullet timer
-	glutTimerFunc(16, firstTimer, 0); // start bullet timer
+	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
+	//glutTimerFunc(16, firstTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
 	// bullet insert
-	for (int i = 0; i < 144 * 3; ++i)
-	{
-		float xgap = static_cast <float>(i / 3) * 2;
-		Bullet* b = new Bullet();
-		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
-		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
-		b->setColor(color1);
-		bullets.push_back(*b);
-	}
+	if (currentStage == 1) CreateBulletPaze_1();
 	
 
 	make_vertexShaders();
@@ -377,7 +399,7 @@ GLvoid drawScene()
 
 	
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
-	if (currentStage == 0) {
+	if (currentStage == 1) {
 		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
 	}
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -399,7 +421,7 @@ GLvoid drawScene()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &mTransform[0][0]);
 
 	glm::mat4 pTransform = glm::mat4(1.0f);
-	if (currentStage == 0) {
+	if (currentStage == 1) {
 		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
 	}
 	else {

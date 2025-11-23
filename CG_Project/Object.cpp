@@ -92,8 +92,4 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 
 	glDrawArrays(GL_TRIANGLES, 0, 960);
 
-
-
-	
-
 }
