@@ -24,7 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3
+int currentStage = 1;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -368,7 +368,13 @@ int main(int argc, char** argv)
 	}
 
 	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	if (currentStage == 1) {
+		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
+	}
 	player.setScale(glm::vec3(0.05f, 0.05f, 0.05f));
+	if (currentStage == 1) {
+		player.setScale(glm::vec3(0.2f));
+	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
 	glutMainLoop();
