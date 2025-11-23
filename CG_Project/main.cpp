@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <ctime>
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
@@ -26,10 +27,16 @@ int currentStage = 0;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
+// bullet 색상을 위한 random 엔진 - 색상은 밝은 색상 위주로
+std::default_random_engine generator(static_cast<unsigned int>(time(0)));
+std::uniform_real_distribution<float> colorDistribution(0.7f, 1.0f);
+
 float angleCameraY = 0.0f; // 카메라 Y축 각도(디버깅 위해)
 bool rotatingCamera = false; // 카메라 회전 여부
 
-// bullet 생성 함수
+clock_t lastTime;  // 이전 프레임 시간
+
+// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
 {
 	Bullet b;
@@ -221,6 +228,23 @@ void BulletTimer(int value)
 	glutTimerFunc(16, BulletTimer, 0); 
 }
 
+// 1,2페이즈에 사용할 타이머
+void firstTimer(int value)
+{
+	clock_t currentTime = clock();
+	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;	
+	lastTime = currentTime;
+
+	// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+	for ( auto& b : bullets)
+	{
+		b.update_first_paze(deltaTime); 
+	}
+
+	glutPostRedisplay();
+	glutTimerFunc(16, firstTimer, 0);
+}
+
 void UpdateBullets()
 {
 	for (Bullet& b : bullets)
@@ -268,10 +292,22 @@ int main(int argc, char** argv)
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
-	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
+	//glutTimerFunc(16, BulletTimer, 0); // start bullet timer
+	glutTimerFunc(16, firstTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
+	// bullet insert
+	for (int i = 0; i < 40; ++i)
+	{
+		float xgap = static_cast <float>(i) * 2;
+		Bullet* b = new Bullet();
+		b->setPosition(glm::vec3(-40.0f + xgap, 25.0f, -90.0f));
+		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+		b->setColor(color1);
+		bullets.push_back(*b);
+	}
+	
 
 	make_vertexShaders();
 	make_fragmentShaders();
@@ -366,12 +402,18 @@ GLvoid drawScene()
 
 	// bullet.render를 사용해서 그리기 - bullet의 mesh를 등록 후 render 호출
 
+	glBindVertexArray(gSphere.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
+
+	std::vector<float> bulletVertices; // temp
+
 	// bullets (temp)
 	for (Bullet& b : bullets) 
 	{
-		glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
-		bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
-		DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
+		//glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
+		//bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
+		//DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
+		b.render(shaderProgramID, gSphere.vao, gSphere.vbo, bulletVertices);
 	}
 	
 	glutSwapBuffers();

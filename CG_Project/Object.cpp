@@ -86,6 +86,9 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 	modelTransform = centerM;
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &modelTransform[0][0]);
 
+	unsigned int colorLocation = glGetUniformLocation(shaderProgramID, "objectColor");
+	glUniform3f(colorLocation, color.x, color.y, color.z);
+
 
 	glDrawArrays(GL_TRIANGLES, 0, 960);
 
