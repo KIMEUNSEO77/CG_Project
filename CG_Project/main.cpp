@@ -103,6 +103,7 @@ void SpawnBullet(int pattern)
 			b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 			bullets.push_back(b);
 		}
+		return; // 이미 여러 개 생성했으므로 리턴
 	}
 	// 0번째 왼쪽 버전
 	else if (pattern == 4)
