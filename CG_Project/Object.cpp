@@ -94,6 +94,6 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 
 
 
-	glBindVertexArray(0);
+	
 
 }
