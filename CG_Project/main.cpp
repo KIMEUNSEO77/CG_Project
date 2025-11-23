@@ -21,6 +21,7 @@ GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 
 Mesh gSphere;  // sphere obj
+Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
 int currentStage = 3;   // current stage 0: title, 1, 2, 3
@@ -359,6 +360,17 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// 일반 OBJ 파일 로드 (airplane 등)
+	if (!LoadOBJ_General("airplane.obj", gPlayer))
+	{
+		std::cerr << "Failed to load airplane.obj\n";
+		return 1;
+	}
+
+	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	player.setScale(glm::vec3(0.05f, 0.05f, 0.05f));
+	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+
 	glutMainLoop();
 
 	return 0;
@@ -445,12 +457,17 @@ GLvoid drawScene()
 	// temp player
 	glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
 	tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
-	DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
+	//DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
+
+	std::vector<float> bulletVertices; // temp
+
+	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
+	//glDrawArrays(GL_TRIANGLES, 0, 8448);
 
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
 
-	std::vector<float> bulletVertices; // temp
+	
 
 	// bullets (temp)
 	for (Bullet& b : bullets) 
