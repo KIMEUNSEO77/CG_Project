@@ -328,7 +328,7 @@ void CreateBulletPaze_2()
 
 	for (int i = 0; i < 19 + 1; ++i)
 	{
-		float xgap = static_cast <float>(i) * 4 + 1;
+		float xgap = static_cast <float>(i) * 6 - 3;
 		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
 		for (int j = 0; j < 10; ++j)
 		{
@@ -370,10 +370,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		player.move(1.0f, 0.0f); // move right
 		break;
 	case 'w':
-		player.move(0.0f, -1.0f); // move front
+		player.move(0.0f, 1.0f); // move front
 		break;
 	case 's':
-		player.move(0.0f, 1.0f); // move back
+		player.move(0.0f, -1.0f); // move back
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
