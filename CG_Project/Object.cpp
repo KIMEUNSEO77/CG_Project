@@ -72,6 +72,16 @@ void Bullet::update_first_paze(float deltaTime)
 	}
 }
 
+void Bullet::update_second_paze(float deltaTime)
+{
+	position.z += 50.0f;
+
+	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(20.0f * deltaTime), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec4 rotatedPos = rotationMatrix * glm::vec4(position, 1.0f);
+	rotatedPos.z -= 50.0f;
+	position = glm::vec3(rotatedPos);
+}
+
 
 void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) // 렌더링 할 때 넘겨줘야 하는 값들 - shaderProgramID, VAO, VBO, vertices, 정점 개수
 {
