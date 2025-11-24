@@ -328,7 +328,7 @@ void CreateBulletPaze_2()
 
 	for (int i = 0; i < 19 + 1; ++i)
 	{
-		float xgap = static_cast <float>(i) * 6 - 3;
+		float xgap = static_cast <float>(i) * 6;
 		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
 		for (int j = 0; j < 10; ++j)
 		{
