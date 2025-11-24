@@ -10,10 +10,10 @@ void Object::update()
 
 }
 
-void Player::move(float dx, float dz)
+void Player::move(float dx, float dy)
 {
 	position.x += dx * speed;
-	position.z += dz * speed;
+	position.y += dy * speed;
 }
 
 void Player::damaged(float damage)
@@ -70,6 +70,16 @@ void Bullet::update_first_paze(float deltaTime)
 	if (-40.0f <= position.z) {
 		position.z = -90.0f; // reset position
 	}
+}
+
+void Bullet::update_second_paze(float deltaTime)
+{
+	position.z += 50.0f;
+
+	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(20.0f * deltaTime), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec4 rotatedPos = rotationMatrix * glm::vec4(position, 1.0f);
+	rotatedPos.z -= 50.0f;
+	position = glm::vec3(rotatedPos);
 }
 
 

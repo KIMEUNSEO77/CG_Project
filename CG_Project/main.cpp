@@ -24,7 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
-int currentStage = 1;   // current stage 0: title, 1, 2, 3
+int currentStage = 2;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -36,6 +36,8 @@ std::uniform_real_distribution<float> colorDistribution(0.6f, 1.0f);
 std::uniform_real_distribution<float> bulletYDistribution(-19.50f, 25.0f);
 // bullet 생성 z좌표 범위
 std::uniform_real_distribution<float> bulletZDistribution(-90.0f, -45.0f);
+// scond phase bullet angle 
+std::uniform_real_distribution<float> bulletAngleDistribution(-30.0f, 30.0f);
 
 float angleCameraY = 0.0f; // 카메라 Y축 각도(디버깅 위해)
 bool rotatingCamera = false; // 카메라 회전 여부
@@ -222,6 +224,18 @@ void BulletTimer(int value)
 			b.update_first_paze(deltaTime);
 		}
 	}
+	else if (currentStage == 2)
+	{
+		clock_t currentTime = clock();
+		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
+		lastTime = currentTime;
+		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+		for (auto& b : bullets)
+		{
+			b.update_second_paze(deltaTime);
+		}
+	}
+	else
 	if (currentStage == 3)
 	{
 		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -293,6 +307,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
+	bullets.clear();
 	for (int i = 0; i < 144 * 3; ++i)
 	{
 		float xgap = static_cast <float>(i / 3) * 2;
@@ -301,6 +316,46 @@ void CreateBulletPaze_1()
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 		b->setColor(color1);
 		bullets.push_back(*b);
+	}
+}
+
+void CreateBulletPaze_2()
+{
+	bullets.clear();
+	float xangle = bulletAngleDistribution(generator);
+	
+	//39 / 2 = 19.5
+
+	for (int i = 0; i < 19 + 1; ++i)
+	{
+		float xgap = static_cast <float>(i) * 6;
+		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
+		for (int j = 0; j < 10; ++j)
+		{
+			float ygap = static_cast <float>(j) * 4 + 1;
+			Bullet* b = new Bullet();
+			glm::vec3 initialPos(-39.0f + xgap, 20.0f - ygap, 10.0f);
+			// rotate around Y axis by xangle
+			glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(xangle), glm::vec3(1.0f, 0.0f, 0.0f));
+			glm::vec4 rotatedPos = rotationMatrix * glm::vec4(initialPos, 1.0f);
+			glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f));
+			rotatedPos = translationMatrix * rotatedPos;
+			b->setPosition(glm::vec3(rotatedPos));
+			//b->setPosition(glm::vec3(initialPos));
+			glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+			b->setColor(color1);
+			bullets.push_back(*b);
+
+			Bullet* b2 = new Bullet();
+			initialPos = glm::vec3(-39.0f + xgap, 20.0f - ygap, -10.0f);
+			rotatedPos = rotationMatrix * glm::vec4(initialPos, 1.0f);
+			rotatedPos = translationMatrix * rotatedPos;
+			b2->setPosition(glm::vec3(rotatedPos));
+			glm::vec3 color2(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+			b2->setColor(color2);
+			bullets.push_back(*b2);
+		}
+		xangle += 45.0f; // increase angle for next column
 	}
 }
 
@@ -315,10 +370,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		player.move(1.0f, 0.0f); // move right
 		break;
 	case 'w':
-		player.move(0.0f, -1.0f); // move front
+		player.move(0.0f, 1.0f); // move front
 		break;
 	case 's':
-		player.move(0.0f, 1.0f); // move back
+		player.move(0.0f, -1.0f); // move back
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
@@ -347,7 +402,7 @@ int main(int argc, char** argv)
 
 	// bullet insert
 	if (currentStage == 1) CreateBulletPaze_1();
-	
+	if (currentStage == 2) CreateBulletPaze_2();
 
 	make_vertexShaders();
 	make_fragmentShaders();
