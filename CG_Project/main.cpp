@@ -224,6 +224,18 @@ void BulletTimer(int value)
 			b.update_first_paze(deltaTime);
 		}
 	}
+	else if (currentStage == 2)
+	{
+		clock_t currentTime = clock();
+		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
+		lastTime = currentTime;
+		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+		for (auto& b : bullets)
+		{
+			b.update_second_paze(deltaTime);
+		}
+	}
+	else
 	if (currentStage == 3)
 	{
 		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
@@ -333,6 +345,15 @@ void CreateBulletPaze_2()
 			glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b->setColor(color1);
 			bullets.push_back(*b);
+
+			Bullet* b2 = new Bullet();
+			initialPos = glm::vec3(-39.0f + xgap, 20.0f - ygap, -10.0f);
+			rotatedPos = rotationMatrix * glm::vec4(initialPos, 1.0f);
+			rotatedPos = translationMatrix * rotatedPos;
+			b2->setPosition(glm::vec3(rotatedPos));
+			glm::vec3 color2(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+			b2->setColor(color2);
+			bullets.push_back(*b2);
 		}
 		xangle += 45.0f; // increase angle for next column
 	}
@@ -381,8 +402,7 @@ int main(int argc, char** argv)
 
 	// bullet insert
 	if (currentStage == 1) CreateBulletPaze_1();
-	
-	CreateBulletPaze_2();
+	if (currentStage == 2) CreateBulletPaze_2();
 
 	make_vertexShaders();
 	make_fragmentShaders();
