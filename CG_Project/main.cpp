@@ -312,21 +312,24 @@ void CreateBulletPaze_2()
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
-	for (int i = 0; i < 36; ++i)
+	//39 / 2 = 19.5
+
+	for (int i = 0; i < 19 + 1; ++i)
 	{
-		float xgap = static_cast <float>(i) * 8;
+		float xgap = static_cast <float>(i) * 4 + 1;
 		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
 		for (int j = 0; j < 10; ++j)
 		{
-			float ygap = static_cast <float>(j) * 4;
+			float ygap = static_cast <float>(j) * 4 + 1;
 			Bullet* b = new Bullet();
-			glm::vec3 initialPos(-144.0f + xgap, 20.0f - ygap, -10.0f);
+			glm::vec3 initialPos(-39.0f + xgap, 20.0f - ygap, 10.0f);
 			// rotate around Y axis by xangle
 			glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(xangle), glm::vec3(1.0f, 0.0f, 0.0f));
 			glm::vec4 rotatedPos = rotationMatrix * glm::vec4(initialPos, 1.0f);
-			glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -40.0f));
+			glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f));
 			rotatedPos = translationMatrix * rotatedPos;
 			b->setPosition(glm::vec3(rotatedPos));
+			//b->setPosition(glm::vec3(initialPos));
 			glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b->setColor(color1);
 			bullets.push_back(*b);
@@ -379,7 +382,7 @@ int main(int argc, char** argv)
 	// bullet insert
 	if (currentStage == 1) CreateBulletPaze_1();
 	
-	//CreateBulletPaze_2();
+	CreateBulletPaze_2();
 
 	make_vertexShaders();
 	make_fragmentShaders();
