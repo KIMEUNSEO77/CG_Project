@@ -137,10 +137,15 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	float dx = x_ndc - player_x_ndc;
 	float dy = y_ndc - player_y_ndc;
 	
-	if ((dx * dx) + (dy * dy) < (xradius * xradius + yradius * yradius)) {
+	/*if ((dx * dx) + (dy * dy) < (xradius * xradius + yradius * yradius)) {
+		std::cout << "Collision detected!" << std::endl;
+		return true; // Collision detected
+	}*/
+	if (abs(dx) < xradius && abs(dy) < yradius) {
 		std::cout << "Collision detected!" << std::endl;
 		return true; // Collision detected
 	}
 
+	
 	return false; // No collision
 }
