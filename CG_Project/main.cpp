@@ -24,7 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
-int currentStage = 2;   // current stage 0: title, 1, 2, 3
+int currentStage = 1;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -250,11 +250,12 @@ void BulletTimer(int value)
 		clock_t currentTime = clock();
 		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
 		lastTime = currentTime;
-
+		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			b.update_first_paze(deltaTime);
+			//b.update_first_paze(deltaTime);
+			b.collide(vTransform, pTransform, ppos);
 		}
 	}
 	else if (currentStage == 2)
@@ -507,7 +508,7 @@ int main(int argc, char** argv)
 	}
 	player.setScale(glm::vec3(0.05f, 0.05f, 0.05f));
 	if (currentStage == 1 || currentStage == 2) {
-		player.setScale(glm::vec3(0.2f));
+		player.setScale(glm::vec3(0.05f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
