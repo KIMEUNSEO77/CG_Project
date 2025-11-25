@@ -107,6 +107,6 @@ public:
 	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override;
 	void update_first_paze(float deltaTime);
 	void update_second_paze(float deltaTime);
-	bool collide(const glm::mat4& view, const glm::mat4& proj);
+	bool collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& playerpos);
 };
 

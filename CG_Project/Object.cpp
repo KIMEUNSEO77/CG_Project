@@ -107,22 +107,19 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 
 }
 
-bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj)
+bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& playerpos)
 {
 	// Transform bullet position to clip space
 	glm::vec4 bulletPos = glm::vec4(position, 1.0f);
-	glm::vec4 clipPos = proj * view * bulletPos;
+	glm::vec4 viewPos = view * bulletPos;
 	
 	// Perform perspective division to get NDC (Normalized Device Coordinates)
-	if (clipPos.w != 0.0f) {
-		clipPos /= clipPos.w;
-	}
+	float x_ndc = viewPos.x * proj[0][0] / -viewPos.z;
+	float y_ndc = viewPos.y * proj[1][1] / -viewPos.z;
 	
 	// Check if bullet is within the view frustum
 	// NDC coordinates range from -1 to 1
-	if (clipPos.x < -1.0f || clipPos.x > 1.0f ||
-		clipPos.y < -1.0f || clipPos.y > 1.0f ||
-		clipPos.z < -1.0f || clipPos.z > 1.0f) {
+	if (x_ndc < -1.0f || 1.0f < x_ndc || y_ndc < -1.0f || 1.0f < y_ndc) {
 		return false; // Outside view frustum
 	}
 	
