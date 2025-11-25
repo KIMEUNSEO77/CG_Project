@@ -390,6 +390,19 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	}
 }
 
+// Initialize all shader uniform locations
+void InitUniformLocations(GLuint shaderProgram)
+{
+	lightOnLoc = glGetUniformLocation(shaderProgram, "lightOn");
+	lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
+	lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+	viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+	viewLoc = glGetUniformLocation(shaderProgram, "view");
+	projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+	modelLoc = glGetUniformLocation(shaderProgram, "model");
+	objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
+}
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -418,6 +431,9 @@ int main(int argc, char** argv)
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
 
+	// Initialize uniform locations
+	InitUniformLocations(shaderProgramID);
+
 	// obj load
 	if (!LoadOBJ_PosNorm_Interleaved("sphere.obj", gSphere))
 	{
@@ -441,16 +457,6 @@ int main(int argc, char** argv)
 		player.setScale(glm::vec3(0.2f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
-
-	// Initialize uniform locations once
-	lightOnLoc = glGetUniformLocation(shaderProgramID, "lightOn");
-	lightColorLoc = glGetUniformLocation(shaderProgramID, "lightColor");
-	lightPosLoc = glGetUniformLocation(shaderProgramID, "lightPos");
-	viewPosLoc = glGetUniformLocation(shaderProgramID, "viewPos");
-	viewLoc = glGetUniformLocation(shaderProgramID, "view");
-	projectionLoc = glGetUniformLocation(shaderProgramID, "projection");
-	modelLoc = glGetUniformLocation(shaderProgramID, "model");
-	objectColorLoc = glGetUniformLocation(shaderProgramID, "objectColor");
 
 	glutMainLoop();
 
