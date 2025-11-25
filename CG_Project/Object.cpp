@@ -3,6 +3,8 @@
 #include <freeglut_ext.h>
 #include <vector>
 
+#include <iostream>
+
 #include "Object.h"
 
 void Object::update()
@@ -117,11 +119,28 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	float x_ndc = viewPos.x * proj[0][0] / -viewPos.z;
 	float y_ndc = viewPos.y * proj[1][1] / -viewPos.z;
 	
+	float xradius = scale.x / -viewPos.z * proj[0][0]; // scale radius based on depth
+	float yradius = scale.y / -viewPos.z * proj[1][1];
+
 	// Check if bullet is within the view frustum
 	// NDC coordinates range from -1 to 1
 	if (x_ndc < -1.0f || 1.0f < x_ndc || y_ndc < -1.0f || 1.0f < y_ndc) {
 		return false; // Outside view frustum
 	}
+
+	// Check collision with player in NDC space
+	glm::vec4 playerPos = glm::vec4(playerpos, 1.0f);
+	glm::vec4 playerViewPos = view * playerPos;
+	float player_x_ndc = playerViewPos.x * proj[0][0] / -playerViewPos.z;
+	float player_y_ndc = playerViewPos.y * proj[1][1] / -playerViewPos.z;
+
+	float dx = x_ndc - player_x_ndc;
+	float dy = y_ndc - player_y_ndc;
 	
-	return true; // Inside view frustum (potential collision)
+	if ((dx * dx) + (dy * dy) < (xradius * xradius + yradius * yradius)) {
+		std::cout << "Collision detected!" << std::endl;
+		return true; // Collision detected
+	}
+
+	return false; // No collision
 }
