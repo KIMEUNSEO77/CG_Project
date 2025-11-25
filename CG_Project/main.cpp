@@ -24,7 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
-int currentStage = 2;   // current stage 0: title, 1, 2, 3
+int currentStage = 1;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -54,7 +54,13 @@ GLint projectionLoc;
 GLint modelLoc;
 GLint objectColorLoc;
 
-// bullet 생성 함수 - 3페이즈에 실행
+// Global transformation matrices and lighting
+glm::vec3 lightPos;
+glm::mat4 vTransform;
+glm::mat4 pTransform;
+glm::vec3 cameraPos;
+
+	// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
 {
 	Bullet b;
@@ -403,6 +409,32 @@ void InitUniformLocations(GLuint shaderProgram)
 	objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
 }
 
+// Initialize global transformation matrices and lighting
+void InitTransformsAndLighting()
+{
+	// Initialize light position
+	glm::vec3 lightBasePos(3.0f, 0.0f, 2.5f);
+	lightPos = glm::vec3(glm::vec4(lightBasePos, 1.0f));
+
+	// Initialize view transform
+	cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
+	if (currentStage == 1) {
+		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	}
+	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
+
+	// Initialize projection transform
+	if (currentStage == 1) {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
+	}
+	else {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	}
+
+}
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -433,6 +465,7 @@ int main(int argc, char** argv)
 
 	// Initialize uniform locations
 	InitUniformLocations(shaderProgramID);
+	InitTransformsAndLighting();
 
 	// obj load
 	if (!LoadOBJ_PosNorm_Interleaved("sphere.obj", gSphere))
@@ -449,11 +482,11 @@ int main(int argc, char** argv)
 	}
 
 	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	if (currentStage == 1) {
+	if (currentStage == 1 || currentStage == 2) {
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
 	}
 	player.setScale(glm::vec3(0.05f, 0.05f, 0.05f));
-	if (currentStage == 1) {
+	if (currentStage == 1 || currentStage == 2) {
 		player.setScale(glm::vec3(0.2f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
@@ -486,44 +519,28 @@ GLvoid drawScene()
 
 	glUniform1i(lightOnLoc, 1); // 1 light on / 0 light off
 
-	glm::vec3 lightBasePos(3.0f, 0.0f, 2.5f);
-	glm::mat4 lightRotate = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	glm::vec3 lightPos = glm::vec3(glm::vec4(lightBasePos, 1.0f));
+	
 
 	// transfer to shader
 	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);      // light color
 	glUniform3f(objectColorLoc, 1.0f, 0.7f, 0.7f);        // object color
 	glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z); // light position
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
-	if (currentStage == 1) {
-		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
-	}
-	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
+	
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
 
-	glm::mat4 vTransform = glm::mat4(1.0f);
-	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
+	// Update view transform
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &vTransform[0][0]);
 
-	glm::mat4 mTransform = glm::mat4(1.0f);
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &mTransform[0][0]);
+	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &mTransform[0][0]);
 
-	glm::mat4 pTransform = glm::mat4(1.0f);
-	if (currentStage == 1) {
-		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
-	}
-	else {
-		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-	}
+	
 	
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &pTransform[0][0]);
 
 	// temp player
-	glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
-	tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
+	//glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
+	//tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
 	//DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
 
 	std::vector<float> bulletVertices; // temp
