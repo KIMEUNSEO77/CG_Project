@@ -24,7 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3
+int currentStage = 2;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -59,6 +59,23 @@ glm::vec3 lightPos;
 glm::mat4 vTransform;
 glm::mat4 pTransform;
 glm::vec3 cameraPos;
+
+void collidecheck() {
+
+	for (auto it = bullets.begin(); it != bullets.end(); )
+	{
+		glm::vec3 pos = player.getPosition();
+		if (it->collide(vTransform, pTransform, pos)) {
+			// 충돌 시 처리 (예: 플레이어 데미지)
+			player.damaged(10.0f); // 예시로 10 데미지 입힘
+			// 충돌한 총알 제거
+			//it = bullets.erase(it);
+		}
+		else {
+			++it;
+		}
+	}
+}
 
 	// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
@@ -245,10 +262,13 @@ void BulletTimer(int value)
 		clock_t currentTime = clock();
 		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
 		lastTime = currentTime;
+		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			b.update_second_paze(deltaTime);
+			//b.update_second_paze(deltaTime);
+			
+			b.collide(vTransform, pTransform, ppos);
 		}
 	}
 	else
