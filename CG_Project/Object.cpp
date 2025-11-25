@@ -106,3 +106,25 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 	glDrawArrays(GL_TRIANGLES, 0, 960);
 
 }
+
+bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj)
+{
+	// Transform bullet position to clip space
+	glm::vec4 bulletPos = glm::vec4(position, 1.0f);
+	glm::vec4 clipPos = proj * view * bulletPos;
+	
+	// Perform perspective division to get NDC (Normalized Device Coordinates)
+	if (clipPos.w != 0.0f) {
+		clipPos /= clipPos.w;
+	}
+	
+	// Check if bullet is within the view frustum
+	// NDC coordinates range from -1 to 1
+	if (clipPos.x < -1.0f || clipPos.x > 1.0f ||
+		clipPos.y < -1.0f || clipPos.y > 1.0f ||
+		clipPos.z < -1.0f || clipPos.z > 1.0f) {
+		return false; // Outside view frustum
+	}
+	
+	return true; // Inside view frustum (potential collision)
+}
