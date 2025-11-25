@@ -44,6 +44,16 @@ bool rotatingCamera = false; // 카메라 회전 여부
 
 clock_t lastTime;  // 이전 프레임 시간
 
+// variables for shader uniforms
+GLint lightOnLoc;
+GLint lightColorLoc;
+GLint lightPosLoc;
+GLint viewPosLoc;
+GLint viewLoc;
+GLint projectionLoc;
+GLint modelLoc;
+GLint objectColorLoc;
+
 // bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
 {
@@ -432,6 +442,16 @@ int main(int argc, char** argv)
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
+	// Initialize uniform locations once
+	lightOnLoc = glGetUniformLocation(shaderProgramID, "lightOn");
+	lightColorLoc = glGetUniformLocation(shaderProgramID, "lightColor");
+	lightPosLoc = glGetUniformLocation(shaderProgramID, "lightPos");
+	viewPosLoc = glGetUniformLocation(shaderProgramID, "viewPos");
+	viewLoc = glGetUniformLocation(shaderProgramID, "view");
+	projectionLoc = glGetUniformLocation(shaderProgramID, "projection");
+	modelLoc = glGetUniformLocation(shaderProgramID, "model");
+	objectColorLoc = glGetUniformLocation(shaderProgramID, "objectColor");
+
 	glutMainLoop();
 
 	return 0;
@@ -440,11 +460,8 @@ int main(int argc, char** argv)
 // draw sphere
 void DrawSphere(const Mesh& mesh, GLuint shaderProgram, const glm::mat4& model, const glm::vec3& color)
 {
-	GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
-
-	GLint objLoc = glGetUniformLocation(shaderProgram, "objectColor");
-	glUniform3fv(objLoc, 1, &color[0]);
+	glUniform3fv(objectColorLoc, 1, &color[0]);
 
 	glBindVertexArray(mesh.vao);
 	glDrawArrays(GL_TRIANGLES, 0, mesh.count);
@@ -461,28 +478,17 @@ GLvoid drawScene()
 	// using shader program
 	glUseProgram(shaderProgramID);
 
-	GLint lightOnLoc = glGetUniformLocation(shaderProgramID, "lightOn");
 	glUniform1i(lightOnLoc, 1); // 1 light on / 0 light off
-
-	GLint lightLoc = glGetUniformLocation(shaderProgramID, "lightColor");
-	GLint objLoc = glGetUniformLocation(shaderProgramID, "objectColor");
 
 	glm::vec3 lightBasePos(3.0f, 0.0f, 2.5f);
 	glm::mat4 lightRotate = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::vec3 lightPos = glm::vec3(glm::vec4(lightBasePos, 1.0f));
 
-	GLint uLightPos = glGetUniformLocation(shaderProgramID, "lightPos");     // light position
-	GLuint viewPosLoc = glGetUniformLocation(shaderProgramID, "viewPos");    // camera position
 	// transfer to shader
-	glUniform3f(lightLoc, 1.0f, 1.0f, 1.0f);      // light color
-	glUniform3f(objLoc, 1.0f, 0.7f, 0.7f);        // object color
-	glUniform3f(uLightPos, lightPos.x, lightPos.y, lightPos.z); // light position
+	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);      // light color
+	glUniform3f(objectColorLoc, 1.0f, 0.7f, 0.7f);        // object color
+	glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z); // light position
 
-	GLint viewLoc = glGetUniformLocation(shaderProgramID, "view");
-	GLint projLoc = glGetUniformLocation(shaderProgramID, "projection");
-	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
-
-	
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
 	if (currentStage == 1) {
 		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
@@ -490,13 +496,7 @@ GLvoid drawScene()
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(angleCameraY), glm::vec3(0.0f, 1.0f, 0.0f));
-	//cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
-
-	// x축 기준 -40도 회전 ( 위에서 아래로 보는 각도 )
-	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(-40.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	//cameraPos = glm::vec3(rotation * glm::vec4(cameraPos - cameraDirection, 1.0f)) + cameraDirection;
 
 	glm::mat4 vTransform = glm::mat4(1.0f);
 	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
@@ -513,7 +513,7 @@ GLvoid drawScene()
 		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	}
 	
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, &pTransform[0][0]);
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &pTransform[0][0]);
 
 	// temp player
 	glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
