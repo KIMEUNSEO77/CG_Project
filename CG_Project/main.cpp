@@ -24,7 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 Player player; // player object(temp)
-int currentStage = 1;   // current stage 0: title, 1, 2, 3
+int currentStage = 3;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -532,16 +532,11 @@ GLvoid drawScene()
 	// Update view transform
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &vTransform[0][0]);
 
-	//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &mTransform[0][0]);
 
 	
 	
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &pTransform[0][0]);
 
-	// temp player
-	//glm::mat4 tmpPlayer = glm::translate(glm::mat4(1.0f), player.getPosition());
-	//tmpPlayer = glm::scale(tmpPlayer, glm::vec3(1.5f, 1.5f, 1.5f));
-	//DrawSphere(gSphere, shaderProgramID, tmpPlayer, glm::vec3(0.8f, 0.0f, 0.0f));
 
 	std::vector<float> bulletVertices; // temp
 
