@@ -60,14 +60,26 @@ glm::mat4 vTransform;
 glm::mat4 pTransform;
 glm::vec3 cameraPos;
 
-void collidecheck() {
+// hp bar vertices
+float hpBarVertices[] = 
+{
+	// pos      // uv
+	-0.9f, 0.9f,  0.0f, 1.0f,
+	-0.9f, 0.85f, 0.0f, 0.0f,
+	-0.3f, 0.85f, 1.0f, 0.0f,
+	-0.3f, 0.9f,  1.0f, 1.0f
+};
+
+void collidecheck() 
+{
 
 	for (auto it = bullets.begin(); it != bullets.end(); )
 	{
 		glm::vec3 pos = player.getPosition();
-		if (it->collide(vTransform, pTransform, pos)) {
-			// 충돌 시 처리 (예: 플레이어 데미지)
-			player.damaged(10.0f); // 예시로 10 데미지 입힘
+		if (it->collide(vTransform, pTransform, pos)) 
+		{
+			// 충돌 시 처리 
+			player.damaged(10.0f); // 10 데미지 입힘
 			// 충돌한 총알 제거
 			//it = bullets.erase(it);
 		}
@@ -128,7 +140,7 @@ void SpawnBullet(int pattern)
 	else if (pattern == 3)
 	{
 		int bulletNum = 36; // 밀도
-		for (int i = 0; i < bulletNum; ++i) 
+		for (int i = 0; i < bulletNum; ++i)
 		{
 			float angle = glm::radians(180.0f * i / bulletNum);
 			glm::vec3 vel = glm::vec3(cos(angle), sin(angle), 3.0f) * 0.7f;
@@ -201,7 +213,7 @@ void SpawnBullet(int pattern)
 		b.setColor(glm::vec3(1.0f, 0.3f, 0.3f));
 		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
-		// 0번째 오른쪽 버전
+	// 0번째 오른쪽 버전
 	else if (pattern == 9)
 	{
 		int ringCount = 24;
@@ -217,14 +229,14 @@ void SpawnBullet(int pattern)
 	// 기본 (랜덤한 x좌표에서 일자로 날라옴)
 	else if (pattern == 10)
 	{
-		float randX = -8.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(16.0f)));
+		float randX = -8.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (16.0f)));
 		glm::vec3 pos = glm::vec3(randX, 0.0f, -20.0f);
 		glm::vec3 vel = glm::vec3(0.0f, 0.0f, 3.0f);
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 1.0f, 0.8f));
 		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
-		}
+	}
 
 	// 파동 없는 물결
 	else if (pattern == 11)
@@ -280,7 +292,13 @@ void BulletTimer(int value)
 		glm::vec3 ppos = player.getPosition();
 		for (auto& b : bullets)
 		{
-			b.collide(vTransform, pTransform, ppos); // 충돌 체크 추가
+
+			if (b.collide(vTransform, pTransform, ppos))
+			{
+				player.damaged(10.0f);   // HP 깎기
+				// 필요하면 총알 지우기
+				// b를 erase 해야 하면 구조 조금 바꿔야 함
+			}
 		}
 
 		// 시간에 따른 패턴 변경
@@ -319,37 +337,19 @@ void BulletTimer(int value)
 	glutTimerFunc(16, BulletTimer, 0); 
 }
 
-// 1,2페이즈에 사용할 타이머
-/*
-void firstTimer(int value)
-{
-	clock_t currentTime = clock();
-	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;	
-	lastTime = currentTime;
-
-	// 여기에 1,2페이즈에 사용할 타이머 기능 구현
-	for ( auto& b : bullets)
-	{
-		b.update_first_paze(deltaTime); 
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(16, firstTimer, 0);
-}
-*/
-
 void UpdateBullets()
 {
-	if (currentStage == 3) {
+	if (currentStage == 3) 
+	{
 		// z좌표가 3.0 이상인 bullet 삭제
-		for (auto it = bullets.begin(); it != bullets.end(); ) 
+		for (auto it = bullets.begin(); it != bullets.end(); )
 		{
 			glm::vec3 pos = it->getPosition();
-			if (pos.z >= 6.0f) 
+			if (pos.z >= 6.0f)
 			{
 				it = bullets.erase(it);
 			}
-			else 
+			else
 			{
 				// 이동 및 유지
 				glm::vec3 vel = it->getVelocity();
@@ -501,7 +501,6 @@ int main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
-	//glutTimerFunc(16, firstTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
@@ -512,6 +511,12 @@ int main(int argc, char** argv)
 	make_vertexShaders();
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
+
+	// hp bar shader program
+	InitHPBar();
+	make_vertexShaders_hp();
+	make_fragmentShaders_hp();
+	hpShaderProgramID = make_shaderProgram_hp();
 
 	// Initialize uniform locations
 	InitUniformLocations(shaderProgramID);
@@ -540,6 +545,10 @@ int main(int argc, char** argv)
 	if (currentStage == 1 || currentStage == 2) 
 	{
 		player.setScale(glm::vec3(1.0f));
+	}
+	if (currentStage == 3)
+	{
+		player.setScale(glm::vec3(0.1f));
 	}
 	if (currentStage == 3)
 	{
@@ -602,18 +611,27 @@ GLvoid drawScene()
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
 
-	
-
-	// bullets (temp)
+	// bullets
 	for (Bullet& b : bullets) 
 	{
-		//glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
-		//bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
-		//DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
 		b.render(shaderProgramID, gSphere.vao, gSphere.vbo, bulletVertices);
 	}
 	
 	glBindVertexArray(0);
+
+	// 2) HP바 그리기
+	glUseProgram(hpShaderProgramID);
+
+	float hpRatio = static_cast<float>(player.getCurrentHp()) /
+		static_cast<float>(player.getMaxHp());
+
+	glUniform1f(glGetUniformLocation(hpShaderProgramID, "uHP"), hpRatio);
+
+	glDisable(GL_DEPTH_TEST);  // UI가 3D보다 앞에 보이도록
+	glBindVertexArray(hpVAO);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBindVertexArray(0);
+	glEnable(GL_DEPTH_TEST);
 
 	glutSwapBuffers();
 }

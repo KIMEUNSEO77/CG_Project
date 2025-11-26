@@ -8,7 +8,9 @@
 class Object
 {
 protected:
-	float hp;
+	float currentHp;
+	float maxHp; 
+
 	float speed;
 	glm::vec3 position;
 	glm::vec3 cameraPosition;
@@ -56,6 +58,22 @@ public:
 	{
 		return scale;
 	}
+	float getMaxHp()
+	{
+		return maxHp;
+	}
+	float getCurrentHp()
+	{
+		return currentHp;
+	}
+	void setCurrentHp(float hp)
+	{
+		currentHp = hp;
+	}
+	void setMaxHp(float hp)
+	{
+		maxHp = hp;
+	}
 };
 
 
@@ -68,7 +86,8 @@ public:
 	Player()
 	{
 		// 기본값 설정
-		hp = 100.0f;
+		maxHp = 1000.0f;
+		currentHp = maxHp;
 		speed = 0.1f;
 		position = glm::vec3(0.0f, 0.0f, 0.0f);
 		power = 10.0f;
