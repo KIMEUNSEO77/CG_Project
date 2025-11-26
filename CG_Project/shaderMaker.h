@@ -105,7 +105,7 @@ void InitHPBar()
 void make_vertexShaders_hp()
 {
 	GLchar* vertexSource;
-	vertexSource = filetobuf("vertex.glsl");
+	vertexSource = filetobuf("hp_vertex.glsl");
 	hpVertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(hpVertexShader, 1, &vertexSource, NULL);
 	glCompileShader(hpVertexShader);
