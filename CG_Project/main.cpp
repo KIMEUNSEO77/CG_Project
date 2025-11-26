@@ -96,7 +96,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.7f, 0.7f));   // 연분홍
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 나선형
 	else if (pattern == 1)
@@ -108,7 +108,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.5f, 0.2f));
-		b.setScale(glm::vec3(0.6f, 0.6f, 0.6f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	}
 
 	// 물결 패턴
@@ -122,7 +122,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.2f, 0.2f, 0.8f));
-		b.setScale(glm::vec3(0.5f, 0.5f, 0.8f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	}
 	// 한 점에 있다가 퍼지는 패턴
 	else if (pattern == 3)
@@ -130,13 +130,13 @@ void SpawnBullet(int pattern)
 		int bulletNum = 36; // 밀도
 		for (int i = 0; i < bulletNum; ++i) 
 		{
-			float angle = glm::radians(360.0f * i / bulletNum);
+			float angle = glm::radians(180.0f * i / bulletNum);
 			glm::vec3 vel = glm::vec3(cos(angle), sin(angle), 3.0f) * 0.7f;
 			Bullet b;
 			b.setPosition(glm::vec3(0.0f, 0.0f, -5.0f));
 			b.setVelocity(vel);
 			b.setColor(glm::vec3(0.5f, 1.0f, 1.0f));
-			b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
+			b.setScale(glm::vec3(0.05f, 0.05f, 0.05f));
 			bullets.push_back(b);
 		}
 		return; // 이미 여러 개 생성했으므로 리턴
@@ -152,7 +152,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.0f, 0.7f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 0번째 오른쪽 버전
 	else if (pattern == 5)
@@ -165,7 +165,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.0f, 1.0f, 0.7f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 위에서 대각선 방향으로 떨어지는 패턴
 	else if (pattern == 6)
@@ -175,7 +175,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 0.8f, 1.0f));
-		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.3f));
 	}
 	// 반대쪽 대각선
 	else if (pattern == 7)
@@ -185,7 +185,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 0.8f, 1.0f));
-		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.3f));
 	}
 
 	// 0번째 왼쪽 버전
@@ -199,7 +199,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.3f, 0.3f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 		// 0번째 오른쪽 버전
 	else if (pattern == 9)
@@ -212,7 +212,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.6f, 1.0f, 0.0f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 기본 (랜덤한 x좌표에서 일자로 날라옴)
 	else if (pattern == 10)
@@ -223,7 +223,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 1.0f, 0.8f));
-		b.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 		}
 
 	// 파동 없는 물결
@@ -237,7 +237,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.8f, 0.8));
-		b.setScale(glm::vec3(0.4f, 0.4f, 0.4f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	}
 
 	bullets.push_back(b);
@@ -543,7 +543,7 @@ int main(int argc, char** argv)
 	}
 	if (currentStage == 3)
 	{
-		player.setScale(glm::vec3(0.15f));
+		player.setScale(glm::vec3(0.1f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
