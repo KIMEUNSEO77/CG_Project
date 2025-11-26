@@ -292,7 +292,8 @@ void BulletTimer(int value)
 		glm::vec3 ppos = player.getPosition();
 		for (auto& b : bullets)
 		{
-			if (b.collide(vTransform, pTransform, ppos))  // ← 여기!
+
+			if (b.collide(vTransform, pTransform, ppos))
 			{
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
@@ -536,12 +537,18 @@ int main(int argc, char** argv)
 	}
 
 	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	if (currentStage == 1 || currentStage == 2) {
+	if (currentStage == 1 || currentStage == 2) 
+	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
 	}
 	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
-	if (currentStage == 1 || currentStage == 2) {
-		player.setScale(glm::vec3(0.2f));
+	if (currentStage == 1 || currentStage == 2) 
+	{
+		player.setScale(glm::vec3(1.0f));
+	}
+	if (currentStage == 3)
+	{
+		player.setScale(glm::vec3(0.1f));
 	}
 	if (currentStage == 3)
 	{
