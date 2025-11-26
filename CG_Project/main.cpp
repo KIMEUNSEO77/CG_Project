@@ -60,16 +60,6 @@ glm::mat4 vTransform;
 glm::mat4 pTransform;
 glm::vec3 cameraPos;
 
-// hp bar vertices
-float hpBarVertices[] = 
-{
-	// pos      // uv
-	-0.9f, 0.9f,  0.0f, 1.0f,
-	-0.9f, 0.85f, 0.0f, 0.0f,
-	-0.3f, 0.85f, 1.0f, 0.0f,
-	-0.3f, 0.9f,  1.0f, 1.0f
-};
-
 void collidecheck() 
 {
 
@@ -491,7 +481,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // using depth buffer
 	glutInitWindowPosition(100, 50);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("ComputerGraphics_Prject");
+	glutCreateWindow("ComputerGraphics_Project");
 
 	glewExperimental = GL_TRUE;
 	glewInit();
