@@ -276,6 +276,13 @@ void BulletTimer(int value)
 	if (currentStage == 3)
 	{
 		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+		glm::vec3 ppos = player.getPosition();
+		for (auto& b : bullets)
+		{
+			b.collide(vTransform, pTransform, ppos); // 충돌 체크 추가
+		}
+
 		// 시간에 따른 패턴 변경
 		if (t > 0.0f && t < 0.2f) SpawnBullet(10);
 		if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
@@ -525,12 +532,18 @@ int main(int argc, char** argv)
 	}
 
 	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	if (currentStage == 1 || currentStage == 2) {
+	if (currentStage == 1 || currentStage == 2) 
+	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
 	}
 	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
-	if (currentStage == 1 || currentStage == 2) {
+	if (currentStage == 1 || currentStage == 2) 
+	{
 		player.setScale(glm::vec3(1.0f));
+	}
+	if (currentStage == 3)
+	{
+		player.setScale(glm::vec3(0.15f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
