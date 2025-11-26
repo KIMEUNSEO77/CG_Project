@@ -60,6 +60,16 @@ glm::mat4 vTransform;
 glm::mat4 pTransform;
 glm::vec3 cameraPos;
 
+// hp bar vertices
+float hpBarVertices[] = 
+{
+	// pos      // uv
+	-0.9f, 0.9f,  0.0f, 1.0f,
+	-0.9f, 0.85f, 0.0f, 0.0f,
+	-0.3f, 0.85f, 1.0f, 0.0f,
+	-0.3f, 0.9f,  1.0f, 1.0f
+};
+
 void collidecheck() {
 
 	for (auto it = bullets.begin(); it != bullets.end(); )
