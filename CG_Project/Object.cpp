@@ -3,6 +3,8 @@
 #include <freeglut_ext.h>
 #include <vector>
 
+#include <iostream>
+
 #include "Object.h"
 
 void Object::update()
@@ -105,4 +107,64 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 
 	glDrawArrays(GL_TRIANGLES, 0, 960);
 
+}
+
+bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& playerPosWorld)
+{
+	// -------------------------------------------------------
+	// 1. 총알 (Bullet) 투영 -> 화면상 영역(타원) 계산
+	// -------------------------------------------------------
+	glm::vec4 bulletPos = glm::vec4(position, 1.0f);
+	glm::vec4 bulletViewPos = view * bulletPos;
+
+	// 카메라 뒤에 있거나 너무 가까우면 무시
+	if (bulletViewPos.z >= -0.1f) return false;
+
+	float bulletDepth = -bulletViewPos.z; // 양수 깊이
+
+	// 총알 중심점 NDC 변환
+	float bx_ndc = bulletViewPos.x * proj[0][0] / bulletDepth;
+	float by_ndc = bulletViewPos.y * proj[1][1] / bulletDepth;
+
+	// 총알의 화면상 반지름 (Radius) 계산
+	// scale.x, scale.y가 월드 공간에서의 반지름이라고 가정
+	float b_radius_x_ndc = scale.x * proj[0][0] / bulletDepth / 2;
+	float b_radius_y_ndc = scale.y * proj[1][1] / bulletDepth / 2;
+
+
+	// -------------------------------------------------------
+	// 2. 플레이어 (Player) 투영 -> 화면상 점(Point) 계산
+	// -------------------------------------------------------
+	glm::vec4 playerPos = glm::vec4(playerPosWorld, 1.0f);
+	glm::vec4 playerViewPos = view * playerPos;
+
+	// 플레이어가 카메라 뒤에 있으면 무시
+	if (playerViewPos.z >= -0.1f) return false;
+
+	float playerDepth = -playerViewPos.z;
+
+	// 플레이어 중심점 NDC 변환 (반지름 계산 불필요)
+	float px_ndc = playerViewPos.x * proj[0][0] / playerDepth;
+	float py_ndc = playerViewPos.y * proj[1][1] / playerDepth;
+
+
+	// -------------------------------------------------------
+	// 3. 충돌 검사: 점이 타원 안에 있는가?
+	// -------------------------------------------------------
+
+	float dx = px_ndc - bx_ndc; // 플레이어 점 - 총알 중심
+	float dy = py_ndc - by_ndc;
+
+	// 타원 방정식: (x / rx)^2 + (y / ry)^2 <= 1
+	// 이 값이 1보다 작거나 같으면 점이 타원 내부에 있는 것입니다.
+
+	float x_term = dx / b_radius_x_ndc;
+	float y_term = dy / b_radius_y_ndc;
+
+	if ((x_term * x_term) + (y_term * y_term) <= 1.0f) {
+		std::cout << "Collision detected (Point inside Bullet)!" << std::endl;
+		return true;
+	}
+
+	return false;
 }
