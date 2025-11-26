@@ -21,7 +21,7 @@ void Player::move(float dx, float dy)
 void Player::damaged(float damage)
 {
 	if (damage >= 0)
-		hp -= damage;
+		currentHp -= damage;
 }
 
 void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices)

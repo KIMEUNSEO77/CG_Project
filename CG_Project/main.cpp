@@ -106,7 +106,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.7f, 0.7f));   // 연분홍
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 나선형
 	else if (pattern == 1)
@@ -118,7 +118,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.5f, 0.2f));
-		b.setScale(glm::vec3(0.6f, 0.6f, 0.6f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	}
 
 	// 물결 패턴
@@ -132,21 +132,21 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.2f, 0.2f, 0.8f));
-		b.setScale(glm::vec3(0.5f, 0.5f, 0.8f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	}
 	// 한 점에 있다가 퍼지는 패턴
 	else if (pattern == 3)
 	{
 		int bulletNum = 36; // 밀도
-		for (int i = 0; i < bulletNum; ++i) 
+		for (int i = 0; i < bulletNum; ++i)
 		{
-			float angle = glm::radians(360.0f * i / bulletNum);
+			float angle = glm::radians(180.0f * i / bulletNum);
 			glm::vec3 vel = glm::vec3(cos(angle), sin(angle), 3.0f) * 0.7f;
 			Bullet b;
 			b.setPosition(glm::vec3(0.0f, 0.0f, -5.0f));
 			b.setVelocity(vel);
 			b.setColor(glm::vec3(0.5f, 1.0f, 1.0f));
-			b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
+			b.setScale(glm::vec3(0.05f, 0.05f, 0.05f));
 			bullets.push_back(b);
 		}
 		return; // 이미 여러 개 생성했으므로 리턴
@@ -162,7 +162,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.0f, 0.7f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 0번째 오른쪽 버전
 	else if (pattern == 5)
@@ -175,7 +175,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.0f, 1.0f, 0.7f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 위에서 대각선 방향으로 떨어지는 패턴
 	else if (pattern == 6)
@@ -185,7 +185,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 0.8f, 1.0f));
-		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.3f));
 	}
 	// 반대쪽 대각선
 	else if (pattern == 7)
@@ -195,7 +195,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 0.8f, 1.0f));
-		b.setScale(glm::vec3(0.5f, 0.5f, 1.5f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.3f));
 	}
 
 	// 0번째 왼쪽 버전
@@ -209,9 +209,9 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.3f, 0.3f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
-		// 0번째 오른쪽 버전
+	// 0번째 오른쪽 버전
 	else if (pattern == 9)
 	{
 		int ringCount = 24;
@@ -222,19 +222,19 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.6f, 1.0f, 0.0f));
-		b.setScale(glm::vec3(0.8f, 0.8f, 0.8f));
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
 	}
 	// 기본 (랜덤한 x좌표에서 일자로 날라옴)
 	else if (pattern == 10)
 	{
-		float randX = -8.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(16.0f)));
+		float randX = -8.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (16.0f)));
 		glm::vec3 pos = glm::vec3(randX, 0.0f, -20.0f);
 		glm::vec3 vel = glm::vec3(0.0f, 0.0f, 3.0f);
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(0.8f, 1.0f, 0.8f));
-		b.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
-		}
+		b.setScale(glm::vec3(0.2f, 0.2f, 0.2f));
+	}
 
 	// 파동 없는 물결
 	else if (pattern == 11)
@@ -247,7 +247,7 @@ void SpawnBullet(int pattern)
 		b.setPosition(pos);
 		b.setVelocity(vel);
 		b.setColor(glm::vec3(1.0f, 0.8f, 0.8));
-		b.setScale(glm::vec3(0.4f, 0.4f, 0.4f));
+		b.setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 	}
 
 	bullets.push_back(b);
@@ -286,6 +286,13 @@ void BulletTimer(int value)
 	if (currentStage == 3)
 	{
 		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+		glm::vec3 ppos = player.getPosition();
+		for (auto& b : bullets)
+		{
+			b.collide(vTransform, pTransform, ppos); // 충돌 체크 추가
+		}
+
 		// 시간에 따른 패턴 변경
 		if (t > 0.0f && t < 0.2f) SpawnBullet(10);
 		if (t > 2.0f && t < 3.0f) SpawnBullet(0); // 2~3초 사이에 0번 패턴
@@ -322,33 +329,36 @@ void BulletTimer(int value)
 	glutTimerFunc(16, BulletTimer, 0); 
 }
 
-// 1,2페이즈에 사용할 타이머
-/*
-void firstTimer(int value)
-{
-	clock_t currentTime = clock();
-	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;	
-	lastTime = currentTime;
-
-	// 여기에 1,2페이즈에 사용할 타이머 기능 구현
-	for ( auto& b : bullets)
-	{
-		b.update_first_paze(deltaTime); 
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(16, firstTimer, 0);
-}
-*/
-
 void UpdateBullets()
 {
-	for (Bullet& b : bullets)
-	{
-		glm::vec3 pos = b.getPosition();
-		glm::vec3 vel = b.getVelocity();
-		pos += vel * 0.05f; // 속도에 따라 이동 (프레임당 0.05배)
-		b.setPosition(pos);
+	if (currentStage == 3) {
+		// z좌표가 3.0 이상인 bullet 삭제
+		for (auto it = bullets.begin(); it != bullets.end(); )
+		{
+			glm::vec3 pos = it->getPosition();
+			if (pos.z >= 6.0f)
+			{
+				it = bullets.erase(it);
+			}
+			else
+			{
+				// 이동 및 유지
+				glm::vec3 vel = it->getVelocity();
+				pos += vel * 0.05f;
+				it->setPosition(pos);
+				++it;
+			}
+		}
+	}
+	else {
+		// 기존 방식 유지
+		for (Bullet& b : bullets)
+		{
+			glm::vec3 pos = b.getPosition();
+			glm::vec3 vel = b.getVelocity();
+			pos += vel * 0.05f;
+			b.setPosition(pos);
+		}
 	}
 }
 
@@ -482,7 +492,6 @@ int main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
-	//glutTimerFunc(16, firstTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
 
@@ -493,6 +502,12 @@ int main(int argc, char** argv)
 	make_vertexShaders();
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
+
+	// hp bar shader program
+	InitHPBar();
+	make_vertexShaders_hp();
+	make_fragmentShaders_hp();
+	hpShaderProgramID = make_shaderProgram_hp();
 
 	// Initialize uniform locations
 	InitUniformLocations(shaderProgramID);
@@ -519,6 +534,10 @@ int main(int argc, char** argv)
 	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	if (currentStage == 1 || currentStage == 2) {
 		player.setScale(glm::vec3(0.2f));
+	}
+	if (currentStage == 3)
+	{
+		player.setScale(glm::vec3(0.1f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
@@ -577,18 +596,25 @@ GLvoid drawScene()
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
 
-	
-
-	// bullets (temp)
+	// bullets
 	for (Bullet& b : bullets) 
 	{
-		//glm::mat4 bulletModel = glm::translate(glm::mat4(1.0f), b.getPosition());
-		//bulletModel = glm::scale(bulletModel, b.getScale()); // 탄환 크기
-		//DrawSphere(gSphere, shaderProgramID, bulletModel, b.getColor());
 		b.render(shaderProgramID, gSphere.vao, gSphere.vbo, bulletVertices);
 	}
 	
 	glBindVertexArray(0);
+
+	// 2) HP바 그리기
+	glUseProgram(hpShaderProgramID);
+
+	float hpRatio = player.getCurrentHp() / player.getMaxHp();  // 0.0 ~ 1.0
+	glUniform1f(glGetUniformLocation(hpShaderProgramID, "uHP"), hpRatio);
+
+	glDisable(GL_DEPTH_TEST);  // UI가 3D보다 앞에 보이도록
+	glBindVertexArray(hpVAO);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBindVertexArray(0);
+	glEnable(GL_DEPTH_TEST);
 
 	glutSwapBuffers();
 }
