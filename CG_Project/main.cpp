@@ -70,14 +70,16 @@ float hpBarVertices[] =
 	-0.3f, 0.9f,  1.0f, 1.0f
 };
 
-void collidecheck() {
+void collidecheck() 
+{
 
 	for (auto it = bullets.begin(); it != bullets.end(); )
 	{
 		glm::vec3 pos = player.getPosition();
-		if (it->collide(vTransform, pTransform, pos)) {
-			// 충돌 시 처리 (예: 플레이어 데미지)
-			player.damaged(10.0f); // 예시로 10 데미지 입힘
+		if (it->collide(vTransform, pTransform, pos)) 
+		{
+			// 충돌 시 처리 
+			player.damaged(10.0f); // 10 데미지 입힘
 			// 충돌한 총알 제거
 			//it = bullets.erase(it);
 		}
@@ -290,7 +292,12 @@ void BulletTimer(int value)
 		glm::vec3 ppos = player.getPosition();
 		for (auto& b : bullets)
 		{
-			b.collide(vTransform, pTransform, ppos); // 충돌 체크 추가
+			if (b.collide(vTransform, pTransform, ppos))  // ← 여기!
+			{
+				player.damaged(10.0f);   // HP 깎기
+				// 필요하면 총알 지우기
+				// b를 erase 해야 하면 구조 조금 바꿔야 함
+			}
 		}
 
 		// 시간에 따른 패턴 변경
@@ -331,7 +338,8 @@ void BulletTimer(int value)
 
 void UpdateBullets()
 {
-	if (currentStage == 3) {
+	if (currentStage == 3) 
+	{
 		// z좌표가 3.0 이상인 bullet 삭제
 		for (auto it = bullets.begin(); it != bullets.end(); )
 		{
@@ -607,7 +615,9 @@ GLvoid drawScene()
 	// 2) HP바 그리기
 	glUseProgram(hpShaderProgramID);
 
-	float hpRatio = player.getCurrentHp() / player.getMaxHp();  // 0.0 ~ 1.0
+	float hpRatio = static_cast<float>(player.getCurrentHp()) /
+		static_cast<float>(player.getMaxHp());
+
 	glUniform1f(glGetUniformLocation(hpShaderProgramID, "uHP"), hpRatio);
 
 	glDisable(GL_DEPTH_TEST);  // UI가 3D보다 앞에 보이도록

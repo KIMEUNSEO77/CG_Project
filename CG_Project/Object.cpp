@@ -20,7 +20,10 @@ void Player::move(float dx, float dy)
 
 void Player::damaged(float damage)
 {
-	if (damage >= 0)
+	if (currentHp - damage < 0)
+		currentHp = 0;
+
+	if (currentHp >= 0)
 		currentHp -= damage;
 }
 
@@ -161,7 +164,8 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	float x_term = dx / b_radius_x_ndc;
 	float y_term = dy / b_radius_y_ndc;
 
-	if ((x_term * x_term) + (y_term * y_term) <= 1.0f) {
+	if ((x_term * x_term) + (y_term * y_term) <= 1.0f) 
+	{
 		std::cout << "Collision detected (Point inside Bullet)!" << std::endl;
 		return true;
 	}

@@ -80,11 +80,11 @@ GLuint hpVAO, hpVBO;
 void InitHPBar()
 {
 	float hpVertices[] = {
-		// x,     y
-		-0.9f,  0.90f,  // 왼쪽 위
-		-0.9f,  0.85f,  // 왼쪽 아래
-		-0.3f,  0.85f,  // 오른쪽 아래
-		-0.3f,  0.90f   // 오른쪽 위
+		// x(0~1), y(0~1)
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		1.0f, 1.0f
 	};
 
 	glGenVertexArrays(1, &hpVAO);

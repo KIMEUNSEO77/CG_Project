@@ -2,25 +2,23 @@
 
 #version 330 core
 
-// 화면 좌표(-1 ~ 1)로 미리 넣어줄 거라 2D만 받기
+// 0~1 좌표로 들어오는 정점
 layout (location = 0) in vec2 aPos;
 
-uniform float uHP; // 0.0 ~ 1.0
+uniform float uHP;  // 0.0 ~ 1.0
 
 void main()
 {
-    // 기본 위치
-    vec2 pos = aPos;
+    // 0~1 기준에서 x만 HP 비율대로 줄이기
+    vec2 uv = aPos;   // (0~1, 0~1)
+    uv.x *= uHP;      // HP가 줄면 오른쪽이 안 채워짐
 
-    // 오른쪽 끝 x만 HP에 따라 줄이기
-    // aPos.x 가 -0.9 ~ -0.3 라고 하면:
-    float left  = -0.9;
-    float right = -0.3;
-    float width = right - left;
-
-    // 원래 x가 right일 때만 줄어들게 간단히 처리
-    if (abs(aPos.x - right) < 0.0001)
-        pos.x = left + width * uHP;
+    // 화면 좌표(NDC)로 변환
+    // x: -0.9 ~ -0.3 (width = 0.6)
+    // y:  0.85 ~ 0.90 (height = 0.05)
+    vec2 pos;
+    pos.x = -0.9 + uv.x * 0.6;
+    pos.y =  0.85 + uv.y * 0.05;
 
     gl_Position = vec4(pos, 0.0, 1.0);
 }
