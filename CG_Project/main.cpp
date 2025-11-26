@@ -333,12 +333,34 @@ void firstTimer(int value)
 
 void UpdateBullets()
 {
-	for (Bullet& b : bullets)
-	{
-		glm::vec3 pos = b.getPosition();
-		glm::vec3 vel = b.getVelocity();
-		pos += vel * 0.05f; // 속도에 따라 이동 (프레임당 0.05배)
-		b.setPosition(pos);
+	if (currentStage == 3) {
+		// z좌표가 3.0 이상인 bullet 삭제
+		for (auto it = bullets.begin(); it != bullets.end(); ) 
+		{
+			glm::vec3 pos = it->getPosition();
+			if (pos.z >= 6.0f) 
+			{
+				it = bullets.erase(it);
+			}
+			else 
+			{
+				// 이동 및 유지
+				glm::vec3 vel = it->getVelocity();
+				pos += vel * 0.05f;
+				it->setPosition(pos);
+				++it;
+			}
+		}
+	}
+	else {
+		// 기존 방식 유지
+		for (Bullet& b : bullets)
+		{
+			glm::vec3 pos = b.getPosition();
+			glm::vec3 vel = b.getVelocity();
+			pos += vel * 0.05f;
+			b.setPosition(pos);
+		}
 	}
 }
 
@@ -508,7 +530,7 @@ int main(int argc, char** argv)
 	}
 	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	if (currentStage == 1 || currentStage == 2) {
-		player.setScale(glm::vec3(0.2f));
+		player.setScale(glm::vec3(1.0f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
