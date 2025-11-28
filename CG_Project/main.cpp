@@ -637,7 +637,7 @@ void DrawHPBars(Player& player)
 
 	DrawSingleHPBar(
 		playerHpRatio,
-		-0.9f, 0.85f,      // position
+		-0.75f, 0.8f,      // position
 		0.6f, 0.05f,       // size
 		0.0f, 1.0f, 0.0f,  // color
 		+ 1.0f             // direction
@@ -646,7 +646,7 @@ void DrawHPBars(Player& player)
 	// 보스 HP바
 	DrawSingleHPBar(
 		gBossHpRatio,      
-		0.3f, 0.85f,     
+		0.15f, 0.8f,     
 		0.6f, 0.05f,
 		1.0f, 0.0f, 0.0f,
 		-1.0f
