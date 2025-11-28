@@ -9,9 +9,15 @@ GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
 
+// hp shader
 GLuint hpShaderProgramID;
 GLuint hpVertexShader;
 GLuint hpFragmentShader;
+
+// bg shader
+GLuint bgShaderProgramID;
+GLuint bgVertexShader;
+GLuint bgFragmentShader;
 
 void make_vertexShaders()
 {
@@ -152,6 +158,68 @@ GLuint make_shaderProgram_hp()
 
 	glDeleteShader(hpVertexShader);
 	glDeleteShader(hpFragmentShader);
+
+	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
+	if (!result)
+	{
+		glGetProgramInfoLog(shaderID, 512, NULL, errorLog);
+		std::cerr << "ERROR: shader program          \n" << errorLog << std::endl;
+		return false;
+	}
+	glUseProgram(shaderID);
+	return shaderID;
+}
+
+void make_vertexShaders_bg()
+{
+	GLchar* vertexSource;
+	vertexSource = filetobuf("bg_vertex.glsl");
+	bgVertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(bgVertexShader, 1, &vertexSource, NULL);
+	glCompileShader(bgVertexShader);
+	GLint result;
+	GLchar errorLog[512];
+	glGetShaderiv(bgVertexShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(bgVertexShader, 512, NULL, errorLog);
+		std::cerr << "Error: vertex shader            \n" << errorLog << std::endl;
+		return;
+	}
+}
+
+void make_fragmentShaders_bg()
+{
+	GLchar* fragmentSource;
+	fragmentSource = filetobuf("bg_fragment.glsl");
+	bgFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(bgFragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(bgFragmentShader);
+	GLint result;
+	GLchar errorLog[512];
+	glGetShaderiv(bgFragmentShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(bgFragmentShader, 512, NULL, errorLog);
+		std::cerr << "ERROR: frag_shader            \n" << errorLog << std::endl;
+		return;
+	}
+}
+
+GLuint make_shaderProgram_bg()
+{
+	GLint result;
+	GLchar* errorLog = NULL;
+	GLuint shaderID;
+	shaderID = glCreateProgram();
+
+	glAttachShader(shaderID, bgVertexShader);
+	glAttachShader(shaderID, bgFragmentShader);
+
+	glLinkProgram(shaderID);
+
+	glDeleteShader(bgVertexShader);
+	glDeleteShader(bgFragmentShader);
 
 	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
 	if (!result)
