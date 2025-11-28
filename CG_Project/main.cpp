@@ -14,8 +14,10 @@
 #include "filetobuf.h"
 #include "shaderMaker.h"
 #include "Object.h"
-
 #include "sphere_obj_load.h"
+// to upload images(PNG or JPG) as textures
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
