@@ -603,18 +603,21 @@ void DrawSingleHPBar(
 	float hpRatio,
 	float posX, float posY,
 	float sizeX, float sizeY,
-	float r, float g, float b)
+	float r, float g, float b,
+	float direction)
 {
 	// 유니폼 위치
 	GLint locHP = glGetUniformLocation(hpShaderProgramID, "uHP");
 	GLint locPos = glGetUniformLocation(hpShaderProgramID, "uPos");
 	GLint locSize = glGetUniformLocation(hpShaderProgramID, "uSize");
 	GLint locCol = glGetUniformLocation(hpShaderProgramID, "uColor");
+	GLint locDir = glGetUniformLocation(hpShaderProgramID, "uDirection"); // decrease direction
 
 	glUniform1f(locHP, hpRatio);
 	glUniform2f(locPos, posX, posY);
 	glUniform2f(locSize, sizeX, sizeY);
 	glUniform3f(locCol, r, g, b);
+	glUniform1f(locDir, direction);  // set direction
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
@@ -634,17 +637,19 @@ void DrawHPBars(Player& player)
 
 	DrawSingleHPBar(
 		playerHpRatio,
-		-0.9f, 0.85f,      // 위치
-		0.6f, 0.05f,      // 크기
-		0.0f, 1.0f, 0.0f  // 초록색
+		-0.9f, 0.85f,      // position
+		0.6f, 0.05f,       // size
+		0.0f, 1.0f, 0.0f,  // color
+		+ 1.0f             // direction
 	);
 
 	// 보스 HP바
 	DrawSingleHPBar(
-		gBossHpRatio,      // 60에서 시작해서 1초당 1씩 줄어드는 비율
-		0.3f, 0.85f,      // 플레이어 HP바보다 조금 아래
+		gBossHpRatio,      
+		0.3f, 0.85f,     
 		0.6f, 0.05f,
-		1.0f, 0.0f, 0.0f  // 빨간색
+		1.0f, 0.0f, 0.0f,
+		-1.0f
 	);
 
 	glEnable(GL_DEPTH_TEST);
