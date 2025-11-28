@@ -642,7 +642,7 @@ void DrawHPBars(Player& player)
 	// 보스 HP바
 	DrawSingleHPBar(
 		gBossHpRatio,      // 60에서 시작해서 1초당 1씩 줄어드는 비율
-		-0.9f, 0.75f,      // 플레이어 HP바보다 조금 아래
+		0.3f, 0.85f,      // 플레이어 HP바보다 조금 아래
 		0.6f, 0.05f,
 		1.0f, 0.0f, 0.0f  // 빨간색
 	);
