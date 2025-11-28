@@ -1,11 +1,11 @@
-// hp_fragment shader
-
+// hp_fragment.glsl
 #version 330 core
 
 out vec4 FragColor;
 
+uniform vec3 uColor;   // HP¹Ù »ö
+
 void main()
 {
-    // green hp bar
-    FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    FragColor = vec4(uColor, 1.0);
 }

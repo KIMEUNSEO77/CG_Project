@@ -62,6 +62,32 @@ glm::mat4 vTransform;
 glm::mat4 pTransform;
 glm::vec3 cameraPos;
 
+// boss hp
+float gBossHpMax = 60.0f;
+float gBossHpStartTime = 0.0f;  // 초 단위
+bool  gBossTimerStarted = false;
+float gBossHpRatio = 1.0f;  // 0.0~1.0
+
+void UpdateBossHpTimer()
+{
+	// 프로그램 시작 후 경과 시간
+	float now = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+
+	// 처음 호출될 때 시작 시각 설정
+	if (!gBossTimerStarted)
+	{
+		gBossTimerStarted = true;
+		gBossHpStartTime = now;
+	}
+
+	float elapsed = now - gBossHpStartTime;  // 얼마만큼 지났는지 (초)
+	float remaining = gBossHpMax - elapsed;  // 1초에 1씩 줄어듦
+
+	if (remaining < 0.0f) remaining = 0.0f;
+
+	gBossHpRatio = remaining / gBossHpMax;   // 0.0 ~ 1.0
+}
+
 void collidecheck() 
 {
 
@@ -572,6 +598,60 @@ void DrawSphere(const Mesh& mesh, GLuint shaderProgram, const glm::mat4& model, 
 	glBindVertexArray(0);
 }
 
+// draw hp bar
+void DrawSingleHPBar(
+	float hpRatio,
+	float posX, float posY,
+	float sizeX, float sizeY,
+	float r, float g, float b)
+{
+	// 유니폼 위치
+	GLint locHP = glGetUniformLocation(hpShaderProgramID, "uHP");
+	GLint locPos = glGetUniformLocation(hpShaderProgramID, "uPos");
+	GLint locSize = glGetUniformLocation(hpShaderProgramID, "uSize");
+	GLint locCol = glGetUniformLocation(hpShaderProgramID, "uColor");
+
+	glUniform1f(locHP, hpRatio);
+	glUniform2f(locPos, posX, posY);
+	glUniform2f(locSize, sizeX, sizeY);
+	glUniform3f(locCol, r, g, b);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+}
+void DrawHPBars(Player& player)
+{
+	// 보스 HP 타이머 갱신
+	UpdateBossHpTimer();
+
+	glUseProgram(hpShaderProgramID);
+	glBindVertexArray(hpVAO);
+	glDisable(GL_DEPTH_TEST);  // 항상 앞에 출력
+
+	// 플레이어 HP바
+	float playerHpRatio =
+		static_cast<float>(player.getCurrentHp()) /
+		static_cast<float>(player.getMaxHp());
+
+	DrawSingleHPBar(
+		playerHpRatio,
+		-0.9f, 0.85f,      // 위치
+		0.6f, 0.05f,      // 크기
+		0.0f, 1.0f, 0.0f  // 초록색
+	);
+
+	// 보스 HP바
+	DrawSingleHPBar(
+		gBossHpRatio,      // 60에서 시작해서 1초당 1씩 줄어드는 비율
+		-0.9f, 0.75f,      // 플레이어 HP바보다 조금 아래
+		0.6f, 0.05f,
+		1.0f, 0.0f, 0.0f  // 빨간색
+	);
+
+	glEnable(GL_DEPTH_TEST);
+	glBindVertexArray(0);
+	glUseProgram(0);
+}
+
 GLvoid drawScene()
 {
 	UpdateBullets();
@@ -633,19 +713,8 @@ GLvoid drawScene()
 	
 	glBindVertexArray(0);
 
-	// 2) HP바 그리기
-	glUseProgram(hpShaderProgramID);
-
-	float hpRatio = static_cast<float>(player.getCurrentHp()) /
-		static_cast<float>(player.getMaxHp());
-
-	glUniform1f(glGetUniformLocation(hpShaderProgramID, "uHP"), hpRatio);
-
-	glDisable(GL_DEPTH_TEST);  // UI가 3D보다 앞에 보이도록
-	glBindVertexArray(hpVAO);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	glBindVertexArray(0);
-	glEnable(GL_DEPTH_TEST);
+	// HP바 그리기
+	DrawHPBars(player);
 
 	glutSwapBuffers();
 }
