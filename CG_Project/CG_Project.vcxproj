@@ -141,6 +141,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="shaderMaker.h" />
     <ClInclude Include="sphere_obj_load.h" />
+    <ClInclude Include="texture_load.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />
