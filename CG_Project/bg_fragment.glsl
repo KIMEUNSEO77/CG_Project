@@ -1,11 +1,11 @@
-// bg fragment shader
+// hp_fragment.glsl
 #version 330 core
+
 out vec4 FragColor;
 
-in vec2 TexCoord;
-uniform sampler2D bgTexture;
+uniform vec3 uColor;   // HP¹Ù »ö
 
 void main()
 {
-    FragColor = texture(bgTexture, TexCoord);
+    FragColor = vec4(uColor, 1.0);
 }
