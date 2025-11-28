@@ -1,24 +1,34 @@
-// hp_vertex shader
-
+// hp_vertex.glsl
 #version 330 core
 
-// 0~1 좌표로 들어오는 정점
-layout (location = 0) in vec2 aPos;
+layout (location = 0) in vec2 aPos;  // (0~1, 0~1)
 
-uniform float uHP;  // 0.0 ~ 1.0
+uniform float uHP;        // 0.0 ~ 1.0
+uniform vec2  uPos;       // NDC에서 바의 왼쪽 아래 위치 (-1~1)
+uniform vec2  uSize;      // NDC에서 바의 (width, height)
+uniform float uDirection; // +1.0: 왼→오,  -1.0: 오른→왼
 
 void main()
 {
-    // 0~1 기준에서 x만 HP 비율대로 줄이기
     vec2 uv = aPos;   // (0~1, 0~1)
-    uv.x *= uHP;      // HP가 줄면 오른쪽이 안 채워짐
 
-    // 화면 좌표(NDC)로 변환
-    // x: -0.9 ~ -0.3 (width = 0.6)
-    // y:  0.85 ~ 0.90 (height = 0.05)
+    float scaledX;
+    if (uDirection > 0.0) 
+    {
+        // 왼쪽 기준
+        scaledX = uv.x * uHP;
+    } else 
+    {
+        // 오른쪽 기준
+        scaledX = 1.0 - (1.0 - uv.x) * uHP;
+    }
+
+    uv.x = scaledX;
+
+    // uPos에서 시작해서 uSize만큼 늘리기
     vec2 pos;
-    pos.x = -0.9 + uv.x * 0.6;
-    pos.y =  0.85 + uv.y * 0.05;
+    pos.x = uPos.x + uv.x * uSize.x;
+    pos.y = uPos.y + uv.y * uSize.y;
 
     gl_Position = vec4(pos, 0.0, 1.0);
 }
