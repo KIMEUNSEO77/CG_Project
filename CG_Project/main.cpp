@@ -15,15 +15,15 @@
 #include "shaderMaker.h"
 #include "Object.h"
 #include "sphere_obj_load.h"
-// to upload images(PNG or JPG) as textures
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "texture_load.h"  // load texture
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
 
 Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
+
+GLuint tex_bg;  // background texture
 
 Player player; // player object(temp)
 int currentStage = 3;   // current stage 0: title, 1, 2, 3
@@ -488,6 +488,8 @@ int main(int argc, char** argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	tex_bg = LoadTexture("CG_BackGround.png");  // background texture load
+
 	// callback 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
@@ -509,6 +511,12 @@ int main(int argc, char** argv)
 	make_vertexShaders_hp();
 	make_fragmentShaders_hp();
 	hpShaderProgramID = make_shaderProgram_hp();
+
+	// background shader program
+	make_vertexShaders_bg();
+	make_fragmentShaders_bg();
+	bgShaderProgramID = make_shaderProgram_bg();
+	InitBackgroundQuad();
 
 	// Initialize uniform locations
 	InitUniformLocations(shaderProgramID);
@@ -570,6 +578,20 @@ GLvoid drawScene()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glDisable(GL_DEPTH_TEST); // 배경을 먼저 그리기 위해 깊이 테스트 비활성화
+
+	// draw background
+	glUseProgram(bgShaderProgramID);
+	glBindVertexArray(bgVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex_bg);
+	GLint bgTexLoc = glGetUniformLocation(bgShaderProgramID, "bgTexture");
+	glUniform1i(bgTexLoc, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glEnable(GL_DEPTH_TEST);  // 깊이 테스트 다시 활성화
 
 	// using shader program
 	glUseProgram(shaderProgramID);
