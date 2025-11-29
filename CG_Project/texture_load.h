@@ -11,6 +11,90 @@
 
 GLuint bgVAO = 0, bgVBO = 0;
 
+GLuint cubeVAO = 0, cubeVBO = 0;       // cube for boss
+// cube vertex 
+float cube[8][3] =
+{
+    {0.15f, 0, -0.15f}, {-0.15f, 0, -0.15f}, {-0.15f, 0, 0.15f}, {0.15f, 0, 0.15f},
+    {0.15f, 0.3f, -0.15f}, {-0.15f, 0.3f, -0.15f}, {-0.15f, 0.3f, 0.15f}, {0.15f, 0.3f, 0.15f}
+};
+int faces[6][4] = {
+    {0, 1, 2, 3}, // 아래면
+    {4, 7, 6, 5}, // 윗면
+    {1, 5, 6, 2}, // 뒷면
+    {0, 3, 7, 4}, // 앞면
+    {0, 4, 5, 1}, // 왼쪽
+    {3, 2, 6, 7}  // 오른쪽
+};
+
+int cubeVertexCount = 0;
+
+void pushVertex(std::vector<GLfloat>& vtx, const glm::vec3& p, const glm::vec3& n, const glm::vec2& uv)
+{
+    vtx.push_back(p.x); vtx.push_back(p.y); vtx.push_back(p.z);   // position
+    vtx.push_back(n.x); vtx.push_back(n.y); vtx.push_back(n.z);   // normal
+    vtx.push_back(uv.x); vtx.push_back(uv.y);   // texcoord
+}
+
+void InitCube()
+{
+    std::vector<GLfloat> vertices;
+
+    for (int i = 0; i < 6; i++)
+    {
+        int v0 = faces[i][0], v1 = faces[i][1], v2 = faces[i][2], v3 = faces[i][3];
+
+        glm::vec3 p0(cube[v0][0], cube[v0][1], cube[v0][2]);
+        glm::vec3 p1(cube[v1][0], cube[v1][1], cube[v1][2]);
+        glm::vec3 p2(cube[v2][0], cube[v2][1], cube[v2][2]);
+        glm::vec3 p3(cube[v3][0], cube[v3][1], cube[v3][2]);
+
+        // 면 노말
+        glm::vec3 n = glm::normalize(glm::cross(p2 - p0, p1 - p0));
+
+        // 간단히: 한 면의 4개 꼭짓점 uv
+        glm::vec2 uv0(0.0f, 0.0f);
+        glm::vec2 uv1(1.0f, 0.0f);
+        glm::vec2 uv2(1.0f, 1.0f);
+        glm::vec2 uv3(0.0f, 1.0f);
+
+        // 삼각형 1: v0, v1, v2
+        pushVertex(vertices, p0, n, uv0);
+        pushVertex(vertices, p1, n, uv1);
+        pushVertex(vertices, p2, n, uv2);
+        // 삼각형 2: v0, v2, v3
+        pushVertex(vertices, p0, n, uv0);
+        pushVertex(vertices, p2, n, uv2);
+        pushVertex(vertices, p3, n, uv3);
+    }
+
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+    glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER,
+        sizeof(GLfloat) * vertices.size(),
+        vertices.data(),
+        GL_STATIC_DRAW);
+
+    // position : location = 0
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // normal : location = 1
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // texcoord : location = 2
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    cubeVertexCount = static_cast<int>(vertices.size() / 8);
+}
+
 void InitBackgroundQuad()
 {
     float quadVertices[] = {

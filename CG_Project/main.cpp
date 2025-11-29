@@ -24,6 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 GLuint tex_bg;  // background texture
+GLuint tex_boss;   // boss texture
 
 Player player; // player object(temp)
 int currentStage = 3;   // current stage 0: title, 1, 2, 3
@@ -514,7 +515,9 @@ int main(int argc, char** argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	InitCube();  // boss cube init
 	tex_bg = LoadTexture("CG_BackGround.png");  // background texture load
+	tex_boss = LoadTexture("boss.png"); // boss texture load
 
 	// callback 
 	glutDisplayFunc(drawScene);
@@ -720,6 +723,22 @@ GLvoid drawScene()
 
 	// HP바 그리기
 	DrawHPBars(player);
+
+	// boss cube draw
+	glm::mat4 boss = glm::mat4(1.0f);
+	boss = glm::translate(boss, glm::vec3(0.0f, 0.15f, 0.0f));
+
+	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &boss[0][0]);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(cubeVAO);
+
+	glBindTexture(GL_TEXTURE_2D, tex_boss);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glBindVertexArray(0);
+	
 
 	glutSwapBuffers();
 }

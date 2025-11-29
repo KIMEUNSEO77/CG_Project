@@ -19,6 +19,11 @@ GLuint bgShaderProgramID;
 GLuint bgVertexShader;
 GLuint bgFragmentShader;
 
+// boss shader
+GLuint bossShaderProgramID;
+GLuint bossVertexShader;
+GLuint bossFragmentShader;
+
 void make_vertexShaders()
 {
 	GLchar* vertexSource;
