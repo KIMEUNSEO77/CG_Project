@@ -27,7 +27,7 @@ GLuint tex_bg;  // background texture
 GLuint tex_boss;   // boss texture
 
 Player player; // player object(temp)
-int currentStage = 1;   // current stage 0: title, 1, 2, 3
+int currentStage = 3;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -487,7 +487,7 @@ void InitTransformsAndLighting()
 
 	// Initialize view transform
 	cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
-	if (currentStage == 1) {
+	if (currentStage == 0) {
 		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
 	}
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -575,6 +575,7 @@ int main(int argc, char** argv)
 	}
 
 	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
 	if (currentStage == 1 || currentStage == 2) 
 	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
@@ -584,13 +585,10 @@ int main(int argc, char** argv)
 	{
 		player.setScale(glm::vec3(1.0f));
 	}
+
 	if (currentStage == 3)
 	{
-		player.setScale(glm::vec3(0.1f));
-	}
-	if (currentStage == 3)
-	{
-		player.setScale(glm::vec3(0.1f));
+		player.setScale(glm::vec3(0.15f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
@@ -764,8 +762,16 @@ GLvoid drawScene()
 
 	// boss cube draw
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
-	model = glm::scale(model, glm::vec3(20.0f, 20.0f, 0.01f));  // 납작하게
+	if (currentStage == 3)
+	{
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
+		model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
+	}
+	else
+	{
+		model = glm::translate(model, glm::vec3(0.0f, -5.0f, -60.0f));
+		model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+	}
 
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
 	
