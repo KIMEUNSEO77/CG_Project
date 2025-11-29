@@ -30,7 +30,7 @@ GLuint tex_icon_boss;
 GLuint tex_icon_player;
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3
+int currentStage = 1;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -784,12 +784,12 @@ GLvoid drawScene()
 	if (currentStage == 3)
 	{
 		icon_boss = glm::translate(icon_boss, glm::vec3(11.0f, 5.5f, -10.0f));
-		icon_boss = glm::scale(icon_boss, glm::vec3(5.0f, 5.0f, 0.01f));  // 납작하게
+		icon_boss = glm::scale(icon_boss, glm::vec3(5.0f, 5.0f, 0.01f));  
 	}
 	else
 	{
-		icon_boss = glm::translate(icon_boss, glm::vec3(0.0f, -5.0f, -60.0f));
-		icon_boss = glm::scale(icon_boss, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+		icon_boss = glm::translate(icon_boss, glm::vec3(40.0f, 20.0f, -60.0f));
+		icon_boss = glm::scale(icon_boss, glm::vec3(20.0f, 20.0f, 0.01f));  
 	}
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_boss, icon_boss, cameraPos, lightPos, vTransform, pTransform);
 
@@ -798,12 +798,12 @@ GLvoid drawScene()
 	if (currentStage == 3)
 	{
 		icon_player = glm::translate(icon_player, glm::vec3(-11.0f, 5.5f, -10.0f));
-		icon_player = glm::scale(icon_player, glm::vec3(4.0f, 4.0f, 0.01f));  // 납작하게
+		icon_player = glm::scale(icon_player, glm::vec3(4.0f, 4.0f, 0.01f));  
 	}
 	else
 	{
-		icon_player = glm::translate(icon_player, glm::vec3(0.0f, -5.0f, -60.0f));
-		icon_player = glm::scale(icon_player, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+		icon_player = glm::translate(icon_player, glm::vec3(-40.0f, 20.0f, -60.0f));
+		icon_player = glm::scale(icon_player, glm::vec3(20.0f, 20.0f, 0.01f)); 
 	}
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_player, icon_player, cameraPos, lightPos, vTransform, pTransform);
 
