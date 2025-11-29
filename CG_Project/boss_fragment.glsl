@@ -37,6 +37,12 @@ void main() {
         result = objectColor; // 조명이 꺼져있으면 객체 색상만 사용
     }
 
-    FragColor = vec4(result, 1.0);
-    FragColor = texture(outTexture, TexCoord) * FragColor; // 텍스처 색상으로 최종 색상 설정
+   // 텍스처 색 먼저 가져오기
+    vec4 texColor = texture(outTexture, TexCoord);
+
+    // 완전 투명한 부분은 아예 안 그리기
+    if (texColor.a < 0.1)
+        discard;
+
+    FragColor = vec4(result, 1.0) * texColor;
 }

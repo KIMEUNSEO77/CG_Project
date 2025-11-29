@@ -27,7 +27,7 @@ GLuint tex_bg;  // background texture
 GLuint tex_boss;   // boss texture
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3
+int currentStage = 1;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -526,6 +526,9 @@ int main(int argc, char** argv)
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
+	// use alpha blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// bullet insert
 	if (currentStage == 1) CreateBulletPaze_1();
@@ -608,12 +611,7 @@ void DrawSphere(const Mesh& mesh, GLuint shaderProgram, const glm::mat4& model, 
 }
 
 // draw hp bar
-void DrawSingleHPBar(
-	float hpRatio,
-	float posX, float posY,
-	float sizeX, float sizeY,
-	float r, float g, float b,
-	float direction)
+void DrawSingleHPBar(float hpRatio, float posX, float posY, float sizeX, float sizeY, float r, float g, float b, float direction)
 {
 	// 유니폼 위치
 	GLint locHP = glGetUniformLocation(hpShaderProgramID, "uHP");
@@ -705,7 +703,7 @@ void DrawBossCube(
 
 	// ---- Draw cube ----
 	glBindVertexArray(vao);
-	glDrawArrays(GL_TRIANGLES, 0, cubeVertexCount);
+	glDrawArrays(GL_TRIANGLES, 30, 6);
 	glBindVertexArray(0);
 
 	glUseProgram(0);
@@ -766,8 +764,8 @@ GLvoid drawScene()
 
 	// boss cube draw
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.3f, 0.0f));
-	model = glm::scale(model, glm::vec3(3.0f, 3.0f, 0.01f));  // 납작하게
+	model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
+	model = glm::scale(model, glm::vec3(20.0f, 20.0f, 0.01f));  // 납작하게
 
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
 	
