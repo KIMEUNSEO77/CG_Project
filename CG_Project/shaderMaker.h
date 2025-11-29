@@ -5,6 +5,7 @@
 #include "filetobuf.h"
 
 GLint width = 1500, height = 800;
+// general shader
 GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
@@ -225,6 +226,70 @@ GLuint make_shaderProgram_bg()
 
 	glDeleteShader(bgVertexShader);
 	glDeleteShader(bgFragmentShader);
+
+	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
+	if (!result)
+	{
+		glGetProgramInfoLog(shaderID, 512, NULL, errorLog);
+		std::cerr << "ERROR: shader program          \n" << errorLog << std::endl;
+		return false;
+	}
+	glUseProgram(shaderID);
+	return shaderID;
+}
+
+
+
+void make_vertexShaders_boss()
+{
+	GLchar* vertexSource;
+	vertexSource = filetobuf("boss_vertex.glsl");
+	bossVertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(bossVertexShader, 1, &vertexSource, NULL);
+	glCompileShader(bossVertexShader);
+	GLint result;
+	GLchar errorLog[512];
+	glGetShaderiv(bossVertexShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(bossVertexShader, 512, NULL, errorLog);
+		std::cerr << "Error: vertex shader            \n" << errorLog << std::endl;
+		return;
+	}
+}
+
+void make_fragmentShaders_boss()
+{
+	GLchar* fragmentSource;
+	fragmentSource = filetobuf("boss_fragment.glsl");
+	bossFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(bossFragmentShader, 1, &fragmentSource, NULL);
+	glCompileShader(bossFragmentShader);
+	GLint result;
+	GLchar errorLog[512];
+	glGetShaderiv(bossFragmentShader, GL_COMPILE_STATUS, &result);
+	if (!result)
+	{
+		glGetShaderInfoLog(bossFragmentShader, 512, NULL, errorLog);
+		std::cerr << "ERROR: frag_shader            \n" << errorLog << std::endl;
+		return;
+	}
+}
+
+GLuint make_shaderProgram_boss()
+{
+	GLint result;
+	GLchar* errorLog = NULL;
+	GLuint shaderID;
+	shaderID = glCreateProgram();
+
+	glAttachShader(shaderID, bossVertexShader);
+	glAttachShader(shaderID, bossFragmentShader);
+
+	glLinkProgram(shaderID);
+
+	glDeleteShader(bossVertexShader);
+	glDeleteShader(bossFragmentShader);
 
 	glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
 	if (!result)
