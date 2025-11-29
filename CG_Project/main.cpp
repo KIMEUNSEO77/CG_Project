@@ -788,7 +788,7 @@ GLvoid drawScene()
 	}
 	else
 	{
-		icon_boss = glm::translate(icon_boss, glm::vec3(40.0f, 20.0f, -60.0f));
+		icon_boss = glm::translate(icon_boss, glm::vec3(41.0f, 21.0f, -60.0f));
 		icon_boss = glm::scale(icon_boss, glm::vec3(20.0f, 20.0f, 0.01f));  
 	}
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_boss, icon_boss, cameraPos, lightPos, vTransform, pTransform);
@@ -802,7 +802,7 @@ GLvoid drawScene()
 	}
 	else
 	{
-		icon_player = glm::translate(icon_player, glm::vec3(-40.0f, 20.0f, -60.0f));
+		icon_player = glm::translate(icon_player, glm::vec3(-42.0f, 20.0f, -60.0f));
 		icon_player = glm::scale(icon_player, glm::vec3(20.0f, 20.0f, 0.01f)); 
 	}
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_player, icon_player, cameraPos, lightPos, vTransform, pTransform);
