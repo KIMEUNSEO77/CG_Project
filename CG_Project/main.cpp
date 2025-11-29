@@ -24,6 +24,7 @@ Mesh gSphere;  // sphere obj
 Mesh gPlayer; // player obj
 
 GLuint tex_bg;  // background texture
+GLuint tex_boss;   // boss texture
 
 Player player; // player object(temp)
 int currentStage = 3;   // current stage 0: title, 1, 2, 3
@@ -486,7 +487,7 @@ void InitTransformsAndLighting()
 
 	// Initialize view transform
 	cameraPos = glm::vec3(0.0f, 0.0f, 8.0f);
-	if (currentStage == 1) {
+	if (currentStage == 0) {
 		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
 	}
 	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -514,7 +515,9 @@ int main(int argc, char** argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	InitCube();  // boss cube init
 	tex_bg = LoadTexture("CG_BackGround.png");  // background texture load
+	tex_boss = LoadTexture("boss_image.png"); // boss texture load
 
 	// callback 
 	glutDisplayFunc(drawScene);
@@ -523,6 +526,9 @@ int main(int argc, char** argv)
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
+	// use alpha blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// bullet insert
 	if (currentStage == 1) CreateBulletPaze_1();
@@ -543,6 +549,12 @@ int main(int argc, char** argv)
 	make_fragmentShaders_bg();
 	bgShaderProgramID = make_shaderProgram_bg();
 	InitBackgroundQuad();
+	
+	// boss cube shader program
+	make_vertexShaders_boss();
+	make_vertexShaders_boss();
+	make_fragmentShaders_boss();
+	bossShaderProgramID = make_shaderProgram_boss();
 
 	// Initialize uniform locations
 	InitUniformLocations(shaderProgramID);
@@ -563,6 +575,7 @@ int main(int argc, char** argv)
 	}
 
 	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
 	if (currentStage == 1 || currentStage == 2) 
 	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
@@ -572,13 +585,10 @@ int main(int argc, char** argv)
 	{
 		player.setScale(glm::vec3(1.0f));
 	}
+
 	if (currentStage == 3)
 	{
-		player.setScale(glm::vec3(0.1f));
-	}
-	if (currentStage == 3)
-	{
-		player.setScale(glm::vec3(0.1f));
+		player.setScale(glm::vec3(0.15f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
@@ -599,12 +609,7 @@ void DrawSphere(const Mesh& mesh, GLuint shaderProgram, const glm::mat4& model, 
 }
 
 // draw hp bar
-void DrawSingleHPBar(
-	float hpRatio,
-	float posX, float posY,
-	float sizeX, float sizeY,
-	float r, float g, float b,
-	float direction)
+void DrawSingleHPBar(float hpRatio, float posX, float posY, float sizeX, float sizeY, float r, float g, float b, float direction)
 {
 	// 유니폼 위치
 	GLint locHP = glGetUniformLocation(hpShaderProgramID, "uHP");
@@ -657,6 +662,51 @@ void DrawHPBars(Player& player)
 	glUseProgram(0);
 }
 
+// draw boss
+void DrawBossCube(
+	GLuint shader, GLuint vao, GLuint texture, const glm::mat4& model, const glm::vec3& cameraPos, const glm::vec3& lightPos,
+	const glm::mat4& view, const glm::mat4& projection
+) {
+	glUseProgram(shader);
+
+	// ---- Uniform location ----
+	GLint locModel = glGetUniformLocation(shader, "model");
+	GLint locView = glGetUniformLocation(shader, "view");
+	GLint locProj = glGetUniformLocation(shader, "projection");
+	GLint locObjColor = glGetUniformLocation(shader, "objectColor");
+	GLint locLightColor = glGetUniformLocation(shader, "lightColor");
+	GLint locLightPos = glGetUniformLocation(shader, "lightPos");
+	GLint locViewPos = glGetUniformLocation(shader, "viewPos");
+	GLint locLightOn = glGetUniformLocation(shader, "lightOn");
+	GLint locTex = glGetUniformLocation(shader, "outTexture");
+
+	// ---- Set uniforms ----
+	glUniformMatrix4fv(locModel, 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(locView, 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(locProj, 1, GL_FALSE, &projection[0][0]);
+
+	// Boss는 텍스처 색 그대로 쓰므로 objectColor = white
+	glUniform3f(locObjColor, 1.0f, 1.0f, 1.0f);
+	glUniform3f(locLightColor, 1.0f, 1.0f, 1.0f);
+	glUniform3f(locLightPos, lightPos.x, lightPos.y, lightPos.z);
+	glUniform3f(locViewPos, cameraPos.x, cameraPos.y, cameraPos.z);
+
+	// 조명 끄고(텍스처만 보이게)
+	glUniform1i(locLightOn, 0);
+
+	// Texture binding
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(locTex, 0);
+
+	// ---- Draw cube ----
+	glBindVertexArray(vao);
+	glDrawArrays(GL_TRIANGLES, 30, 6);
+	glBindVertexArray(0);
+
+	glUseProgram(0);
+}
+
 GLvoid drawScene()
 {
 	UpdateBullets();
@@ -680,27 +730,16 @@ GLvoid drawScene()
 
 	// using shader program
 	glUseProgram(shaderProgramID);
-
 	glUniform1i(lightOnLoc, 1); // 1 light on / 0 light off
-
-	
-
 	// transfer to shader
 	glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);      // light color
 	glUniform3f(objectColorLoc, 1.0f, 0.7f, 0.7f);        // object color
 	glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z); // light position
-
-	
 	glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);  // camera position to shader
 
 	// Update view transform
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &vTransform[0][0]);
-
-
-	
-	
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &pTransform[0][0]);
-
 
 	std::vector<float> bulletVertices; // temp
 
@@ -718,8 +757,24 @@ GLvoid drawScene()
 	
 	glBindVertexArray(0);
 
-	// HP바 그리기
+	// hp bar draw
 	DrawHPBars(player);
+
+	// boss cube draw
+	glm::mat4 model = glm::mat4(1.0f);
+	if (currentStage == 3)
+	{
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
+		model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
+	}
+	else
+	{
+		model = glm::translate(model, glm::vec3(0.0f, -5.0f, -60.0f));
+		model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+	}
+
+	DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
+	
 
 	glutSwapBuffers();
 }
