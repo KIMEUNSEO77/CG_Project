@@ -101,7 +101,7 @@ public:
 		up_keydown = 0;
 		down_keydown = 0;
 	}
-	void move(float dx, float dy);
+	void move(float deltaTime);
 	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override;
 	void damaged(float damage);  // 데미지 입음
 	

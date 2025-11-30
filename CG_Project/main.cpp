@@ -279,11 +279,14 @@ void SpawnBullet(int pattern)
 
 void BulletTimer(int value)
 {
+	clock_t currentTime = clock();
+	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
+	lastTime = currentTime;
+
+	player.move(deltaTime);
 	if (currentStage == 1)
 	{
-		clock_t currentTime = clock();
-		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
-		lastTime = currentTime;
+		
 		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
@@ -294,9 +297,6 @@ void BulletTimer(int value)
 	}
 	else if (currentStage == 2)
 	{
-		clock_t currentTime = clock();
-		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
-		lastTime = currentTime;
 		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
@@ -452,16 +452,17 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':
-		player.move(-1.0f, 0.0f); // move left
+		player.setLeftKeyDown();
 		break;
 	case 'd':
-		player.move(1.0f, 0.0f); // move right
+		
+		player.setRightKeyDown();
 		break;
 	case 'w':
-		player.move(0.0f, 1.0f); // move front
+		player.setUpKeyDown();
 		break;
 	case 's':
-		player.move(0.0f, -1.0f); // move back
+		player.setDownKeyDown();
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
