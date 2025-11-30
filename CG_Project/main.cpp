@@ -30,7 +30,7 @@ GLuint tex_icon_boss;
 GLuint tex_icon_player;
 
 Player player; // player object(temp)
-int currentStage = 1;   // current stage 0: title, 1, 2, 3
+int currentStage = 3;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -620,7 +620,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
 
 	if (currentStage == 1 || currentStage == 2) 
 	{
@@ -634,7 +634,7 @@ int main(int argc, char** argv)
 
 	if (currentStage == 3)
 	{
-		player.setScale(glm::vec3(0.15f));
+		player.setScale(glm::vec3(0.5f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
