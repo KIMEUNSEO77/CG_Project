@@ -792,6 +792,15 @@ GLvoid drawScene()
 	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
 	//glDrawArrays(GL_TRIANGLES, 0, 8448);
 
+	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
+	glm::vec3 playerPos = player.getPosition();
+	playerPos.z += 0.5f; // 구체가 플레이어 앞에 위치하도록 약간 조정
+	playerPos.y -= 0.3f; // 구체가 플레이어 아래에 위치하도록 약간 조정
+	glm::mat4 debugSphereModel = glm::translate(glm::mat4(1.0f), playerPos);
+	debugSphereModel = glm::scale(debugSphereModel, glm::vec3(1.5f)); // 작은 크기
+	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
+	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
 
