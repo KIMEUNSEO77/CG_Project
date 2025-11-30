@@ -205,7 +205,7 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	float py_ndc = playerViewPos.y * proj[1][1] / playerDepth;
 	
 	// 플레이어의 화면상 반지름 계산 (debugSphereModel의 scale: 1.3f)
-	const float PLAYER_RADIUS = 1.3f;
+	const float PLAYER_RADIUS = 0.5f;
 	float p_radius_x_ndc = PLAYER_RADIUS * proj[0][0] / playerDepth / 2;
 	float p_radius_y_ndc = PLAYER_RADIUS * proj[1][1] / playerDepth / 2;
 
