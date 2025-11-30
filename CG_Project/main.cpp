@@ -403,7 +403,9 @@ void CreateBulletPaze_1()
 		Bullet* b = new Bullet();
 		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+		b->setScale(glm::vec3(1.0f));
 		b->setColor(color1);
+
 		bullets.push_back(*b);
 	}
 }
@@ -414,14 +416,15 @@ void CreateBulletPaze_2()
 	float xangle = bulletAngleDistribution(generator);
 	
 	//39 / 2 = 19.5
-
-	for (int i = 0; i < 19 + 1; ++i)
+	int vertexgap = 8;
+	float bulletscale = 0.5f;
+	for (int i = 0; i < 13 + 1; ++i)
 	{
 		float xgap = static_cast <float>(i) * 6;
 		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
-		for (int j = 0; j < 10; ++j)
+		for (int j = 0; j < vertexgap; ++j)
 		{
-			float ygap = static_cast <float>(j) * 4 + 1;
+			float ygap = static_cast <float>(j) * (40 / vertexgap) + 1;
 			Bullet* b = new Bullet();
 			glm::vec3 initialPos(-39.0f + xgap, 20.0f - ygap, 10.0f);
 			// rotate around Y axis by xangle
@@ -433,6 +436,7 @@ void CreateBulletPaze_2()
 			//b->setPosition(glm::vec3(initialPos));
 			glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b->setColor(color1);
+			b->setScale(glm::vec3(bulletscale));
 			bullets.push_back(*b);
 
 			Bullet* b2 = new Bullet();
@@ -442,6 +446,7 @@ void CreateBulletPaze_2()
 			b2->setPosition(glm::vec3(rotatedPos));
 			glm::vec3 color2(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b2->setColor(color2);
+			b2->setScale(glm::vec3(bulletscale));
 			bullets.push_back(*b2);
 		}
 		xangle += 45.0f; // increase angle for next column
@@ -715,7 +720,7 @@ void DrawBossCube(
 	glUniformMatrix4fv(locModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(locView, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(locProj, 1, GL_FALSE, &projection[0][0]);
-
+	
 	// Boss는 텍스처 색 그대로 쓰므로 objectColor = white
 	glUniform3f(locObjColor, 1.0f, 1.0f, 1.0f);
 	glUniform3f(locLightColor, 1.0f, 1.0f, 1.0f);
