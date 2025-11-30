@@ -292,7 +292,12 @@ void BulletTimer(int value)
 		for (auto& b : bullets)
 		{
 			b.update_first_paze(deltaTime);
-			b.collide(vTransform, pTransform, ppos);
+			if (b.collide(vTransform, pTransform, ppos))
+			{
+				player.damaged(10.0f);   // HP 깎기
+				// 필요하면 총알 지우기
+				// b를 erase 해야 하면 구조 조금 바꿔야 함
+			}
 		}
 	}
 	else if (currentStage == 2)
@@ -303,7 +308,12 @@ void BulletTimer(int value)
 		{
 			b.update_second_paze(deltaTime);
 			
-			b.collide(vTransform, pTransform, ppos);
+			if (b.collide(vTransform, pTransform, ppos))
+			{
+				player.damaged(10.0f);   // HP 깎기
+				// 필요하면 총알 지우기
+				// b를 erase 해야 하면 구조 조금 바꿔야 함
+			}
 		}
 	}
 	else
@@ -403,7 +413,7 @@ void CreateBulletPaze_1()
 		Bullet* b = new Bullet();
 		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
-		b->setScale(glm::vec3(1.0f));
+		//b->setScale(glm::vec3(1.0f));
 		b->setColor(color1);
 
 		bullets.push_back(*b);
