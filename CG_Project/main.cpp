@@ -396,9 +396,10 @@ void UpdateBullets()
 void CreateBulletPaze_1()
 {
 	bullets.clear();
-	for (int i = 0; i < 144 * 3; ++i)
+	int wide = 24;
+	for (int i = 0; i < wide * 3; ++i)
 	{
-		float xgap = static_cast <float>(i / 3) * 2;
+		float xgap = static_cast <float>(i / 3) * ( 144 / wide );
 		Bullet* b = new Bullet();
 		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
@@ -613,7 +614,7 @@ int main(int argc, char** argv)
 	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	if (currentStage == 1 || currentStage == 2) 
 	{
-		player.setScale(glm::vec3(1.0f));
+		player.setScale(glm::vec3(0.5f));
 	}
 
 	if (currentStage == 3)
