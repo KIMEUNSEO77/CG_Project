@@ -468,6 +468,29 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	}
 }
 
+
+GLvoid KeyboardUp(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'a':
+		player.resetLeftKeyDown();
+		break;
+	case 'd':
+		player.resetRightKeyDown();
+		break;
+	case 'w':
+		player.resetUpKeyDown();
+		break;
+	case 's':
+		player.resetDownKeyDown();
+		break;
+	}
+}
+
+
+
+
 // Initialize all shader uniform locations
 void InitUniformLocations(GLuint shaderProgram)
 {
@@ -528,6 +551,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(KeyboardUp);
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
