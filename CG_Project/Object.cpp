@@ -12,7 +12,7 @@ void Object::update()
 
 }
 
-void Player::move(float deltaTime)
+void Player::move(float deltaTime, const glm::mat4& view, const glm::mat4& proj)
 {
 	float dirx = 0.0f;
 	float diry = 0.0f;
@@ -22,11 +22,47 @@ void Player::move(float deltaTime)
 	if (up_keydown) diry += 1.0f;
 	if (down_keydown) diry -= 1.0f;
 
-	//  ̵       (deltaTime    )
 	if (dirx != 0.0f || diry != 0.0f)
 	{
-		position.x += dirx * speed * deltaTime;
-		position.y += diry * speed * deltaTime;
+		// 새로운 위치 계산
+		glm::vec3 newPosition = position;
+		newPosition.x += dirx * speed * deltaTime;
+		newPosition.y += diry * speed * deltaTime;
+
+		// NDC 좌표로 변환하여 화면 경계 체크
+		glm::vec4 worldPos = glm::vec4(newPosition, 1.0f);
+		glm::vec4 viewPos = view * worldPos;
+		
+		// 카메라 앞에 있는지 확인
+		if (viewPos.z < -0.1f)
+		{
+			float depth = -viewPos.z;
+			
+			// NDC 변환
+			float ndc_x = viewPos.x * proj[0][0] / depth;
+			float ndc_y = viewPos.y * proj[1][1] / depth;
+			
+			// NDC 범위: -1.0 ~ 1.0
+			// 여유를 두기 위해 -0.95 ~ 0.95 범위로 제한
+			const float NDC_LIMIT = 0.95f;
+			
+			// X축 경계 체크
+			if (ndc_x < -NDC_LIMIT || ndc_x > NDC_LIMIT)
+			{
+				// X축 이동만 취소
+				newPosition.x = position.x;
+			}
+			
+			// Y축 경계 체크
+			if (ndc_y < -NDC_LIMIT || ndc_y > NDC_LIMIT)
+			{
+				// Y축 이동만 취소
+				newPosition.y = position.y;
+			}
+			
+			// 최종 위치 적용
+			position = newPosition;
+		}
 	}
 
 	
