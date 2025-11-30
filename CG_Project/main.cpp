@@ -30,7 +30,7 @@ GLuint tex_icon_boss;
 GLuint tex_icon_player;
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3
+int currentStage = 1;   // current stage 0: title, 1, 2, 3
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -291,7 +291,7 @@ void BulletTimer(int value)
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			b.update_first_paze(deltaTime);
+			//b.update_first_paze(deltaTime);
 			if (b.collide(vTransform, pTransform, ppos))
 			{
 				player.damaged(10.0f);   // HP 깎기

@@ -180,15 +180,19 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	float by_ndc = bulletViewPos.y * proj[1][1] / bulletDepth;
 
 	// 총알의 화면상 반지름 (Radius) 계산
-	// scale.x, scale.y가 월드 공간에서의 반지름이라고 가정
 	float b_radius_x_ndc = scale.x * proj[0][0] / bulletDepth / 2;
 	float b_radius_y_ndc = scale.y * proj[1][1] / bulletDepth / 2;
 
 
 	// -------------------------------------------------------
-	// 2. 플레이어 (Player) 투영 -> 화면상 점(Point) 계산
+	// 2. 플레이어 (Player) 투영 -> 화면상 원(Circle) 계산
 	// -------------------------------------------------------
-	glm::vec4 playerPos = glm::vec4(playerPosWorld, 1.0f);
+	// 플레이어 충돌 판정 위치 계산 (debugSphereModel과 동일)
+	glm::vec3 playerCollisionPos = playerPosWorld;
+	playerCollisionPos.z += 0.3f; // 구체가 플레이어 앞에 위치
+	playerCollisionPos.y -= 0.3f; // 구체가 플레이어 아래에 위치
+	
+	glm::vec4 playerPos = glm::vec4(playerCollisionPos, 1.0f);
 	glm::vec4 playerViewPos = view * playerPos;
 
 	// 플레이어가 카메라 뒤에 있으면 무시
@@ -196,27 +200,43 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 
 	float playerDepth = -playerViewPos.z;
 
-	// 플레이어 중심점 NDC 변환 (반지름 계산 불필요)
+	// 플레이어 중심점 NDC 변환
 	float px_ndc = playerViewPos.x * proj[0][0] / playerDepth;
 	float py_ndc = playerViewPos.y * proj[1][1] / playerDepth;
+	
+	// 플레이어의 화면상 반지름 계산 (debugSphereModel의 scale: 1.3f)
+	const float PLAYER_RADIUS = 1.3f;
+	float p_radius_x_ndc = PLAYER_RADIUS * proj[0][0] / playerDepth / 2;
+	float p_radius_y_ndc = PLAYER_RADIUS * proj[1][1] / playerDepth / 2;
 
 
 	// -------------------------------------------------------
-	// 3. 충돌 검사: 점이 타원 안에 있는가?
+	// 3. 충돌 검사: 원 대 원 충돌 (타원 대 타원)
 	// -------------------------------------------------------
-
-	float dx = px_ndc - bx_ndc; // 플레이어 점 - 총알 중심
+	// 두 원의 중심 사이 거리 계산
+	float dx = px_ndc - bx_ndc;
 	float dy = py_ndc - by_ndc;
-
-	// 타원 방정식: (x / rx)^2 + (y / ry)^2 <= 1
-	// 이 값이 1보다 작거나 같으면 점이 타원 내부에 있는 것입니다.
-
-	float x_term = dx / b_radius_x_ndc;
-	float y_term = dy / b_radius_y_ndc;
-
-	if ((x_term * x_term) + (y_term * y_term) <= 1.0f) 
+	
+	// 타원 대 타원 충돌: 분리축 정리(SAT)의 간단한 근사
+	// 각 타원을 정규화된 공간으로 변환하여 원으로 만든 후 거리 비교
+	
+	// 총알 타원의 평균 반지름
+	float b_radius_avg = (b_radius_x_ndc + b_radius_y_ndc) / 2.0f;
+	// 플레이어 타원의 평균 반지름
+	float p_radius_avg = (p_radius_x_ndc + p_radius_y_ndc) / 2.0f;
+	
+	// 정규화된 거리 계산 (타원 공간에서의 거리)
+	float normalized_dx = dx / ((b_radius_x_ndc + p_radius_x_ndc) / 2.0f);
+	float normalized_dy = dy / ((b_radius_y_ndc + p_radius_y_ndc) / 2.0f);
+	float normalized_distance_sq = normalized_dx * normalized_dx + normalized_dy * normalized_dy;
+	
+	// 두 원의 반지름 합 (정규화된 공간에서는 2.0)
+	float sum_radius = 2.0f;
+	
+	// 충돌 판정: 거리가 반지름 합보다 작으면 충돌
+	if (normalized_distance_sq <= sum_radius * sum_radius)
 	{
-		std::cout << "Collision detected (Point inside Bullet)!" << std::endl;
+		std::cout << "Collision detected (Circle vs Circle)!" << std::endl;
 		return true;
 	}
 
