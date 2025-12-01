@@ -308,7 +308,7 @@ void BulletTimer(int value)
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			b.update_second_paze(deltaTime);
+			//b.update_second_paze(deltaTime);
 			
 			if (b.collide(vTransform, pTransform, ppos))
 			{
@@ -795,11 +795,15 @@ GLvoid drawScene()
 	//glDrawArrays(GL_TRIANGLES, 0, 8448);
 
 	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
-	glm::vec3 playerPos = player.getPosition();
-	playerPos.z += 0.3f; // 구체가 플레이어 앞에 위치하도록 약간 조정
-	playerPos.y -= 0.1f; // 구체가 플레이어 아래에 위치하도록 약간 조정
-	glm::mat4 debugSphereModel = glm::translate(glm::mat4(1.0f), playerPos);
 	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
+	
+	glm::vec3 playerPos = player.getPosition();
+	glm::vec3 deltaPos = glm::vec3(0.0f, -0.6f, 0.1f);
+	
+	deltaPos = glm::vec3(scaleSphereModel * glm::vec4(deltaPos, 1.0f));
+
+	playerPos += deltaPos;
+	glm::mat4 debugSphereModel = glm::translate(glm::mat4(1.0f), playerPos);
 	scaleSphereModel = glm::scale(scaleSphereModel, glm::vec3(3.0f)); // 구체 크기 조정
 	debugSphereModel = debugSphereModel * scaleSphereModel;
 	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
