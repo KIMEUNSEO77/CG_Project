@@ -1,4 +1,4 @@
-#include <glew.h>
+ï»¿#include <glew.h>
 #include <freeglut.h>
 #include <freeglut_ext.h>
 #include <vector>
@@ -12,10 +12,60 @@ void Object::update()
 
 }
 
-void Player::move(float dx, float dy)
+void Player::move(float deltaTime, const glm::mat4& view, const glm::mat4& proj)
 {
-	position.x += dx * speed;
-	position.y += dy * speed;
+	float dirx = 0.0f;
+	float diry = 0.0f;
+
+	if (left_keydown) dirx -= 1.0f;
+	if (right_keydown) dirx += 1.0f;
+	if (up_keydown) diry += 1.0f;
+	if (down_keydown) diry -= 1.0f;
+
+	if (dirx != 0.0f || diry != 0.0f)
+	{
+		// ìƒˆë¡œìš´ ìœ„ì¹˜ ê³„ì‚°
+		glm::vec3 newPosition = position;
+		newPosition.x += dirx * speed * deltaTime;
+		newPosition.y += diry * speed * deltaTime;
+
+		// NDC ì¢Œí‘œë¡œ ë³€í™˜í•˜ì—¬ í™”ë©´ ê²½ê³„ ì²´í¬
+		glm::vec4 worldPos = glm::vec4(newPosition, 1.0f);
+		glm::vec4 viewPos = view * worldPos;
+		
+		// ì¹´ë©”ë¼ ì•ì— ìˆëŠ”ì§€ í™•ì¸
+		if (viewPos.z < -0.1f)
+		{
+			float depth = -viewPos.z;
+			
+			// NDC ë³€í™˜
+			float ndc_x = viewPos.x * proj[0][0] / depth;
+			float ndc_y = viewPos.y * proj[1][1] / depth;
+			
+			// NDC ë²”ìœ„: -1.0 ~ 1.0
+			// ì—¬ìœ ë¥¼ ë‘ê¸° ìœ„í•´ -0.95 ~ 0.95 ë²”ìœ„ë¡œ ì œí•œ
+			const float NDC_LIMIT = 0.95f;
+			
+			// Xì¶• ê²½ê³„ ì²´í¬
+			if (ndc_x < -NDC_LIMIT || ndc_x > NDC_LIMIT)
+			{
+				// Xì¶• ì´ë™ë§Œ ì·¨ì†Œ
+				newPosition.x = position.x;
+			}
+			
+			// Yì¶• ê²½ê³„ ì²´í¬
+			if (ndc_y < -NDC_LIMIT || ndc_y > NDC_LIMIT)
+			{
+				// Yì¶• ì´ë™ë§Œ ì·¨ì†Œ
+				newPosition.y = position.y;
+			}
+			
+			// ìµœì¢… ìœ„ì¹˜ ì ìš©
+			position = newPosition;
+		}
+	}
+
+	
 }
 
 void Player::damaged(float damage)
@@ -29,22 +79,22 @@ void Player::damaged(float damage)
 
 void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices)
 {
-	// Transform ¼³Á¤ - scale ¸â¹ö º¯¼ö »ç¿ë
+	// Transform ì„¤ì • - scale ë©¤ë²„ ë³€ìˆ˜ ì‚¬ìš©
 	glm::mat4 modelTransform = glm::mat4(1.0f);
 	modelTransform = glm::translate(modelTransform, position);
 	modelTransform = glm::scale(modelTransform, scale);
-	modelTransform = glm::rotate(modelTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // xÃà ±âÁØ -90µµ È¸Àü
+	modelTransform = glm::rotate(modelTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // xì¶• ê¸°ì¤€ -90ë„ íšŒì „
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &modelTransform[0][0]);
 
-	// »ö»ó ¼³Á¤
+	// ìƒ‰ìƒ ì„¤ì •
 	GLint colorLoc = glGetUniformLocation(shaderProgramID, "objectColor");
 	glUniform3f(colorLoc, color.x, color.y, color.z);
 
-	// VAO¿Í VBO´Â ÀÌ¹Ì main.cpp¿¡¼­ ¹ÙÀÎµåµÇ¾î ÀÖÀ¸¹Ç·Î
-	// ¹Ù·Î ±×¸®±â¸¸ ÇÏ¸é µÊ
-	// gPlayer.count¸¦ ¿ÜºÎ¿¡¼­ ¹Ş¾Æ¾ß ÇÏÁö¸¸, 
-	// Mesh ±¸Á¶¸¦ º¸¸é airplane.obj´Â ´ë·« 8448°³ Á¤Á¡
+	// VAOì™€ VBOëŠ” ì´ë¯¸ main.cppì—ì„œ ë°”ì¸ë“œë˜ì–´ ìˆìœ¼ë¯€ë¡œ
+	// ë°”ë¡œ ê·¸ë¦¬ê¸°ë§Œ í•˜ë©´ ë¨
+	// gPlayer.countë¥¼ ì™¸ë¶€ì—ì„œ ë°›ì•„ì•¼ í•˜ì§€ë§Œ, 
+	// Mesh êµ¬ì¡°ë¥¼ ë³´ë©´ airplane.objëŠ” ëŒ€ëµ 8448ê°œ ì •ì 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glDrawArrays(GL_TRIANGLES, 0, 8448);
@@ -53,22 +103,22 @@ void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 
 void Bullet::update_first_paze(float deltaTime)
 {
-	// zÃà ÀÌµ¿
+	// zì¶• ì´ë™
 	if (position.z < -40.0f)
 		position.z += 5.0f * deltaTime;
 
-	// Áß·Â Àû¿ë
+	// ì¤‘ë ¥ ì ìš©
 	vy += -9.8f * deltaTime; // 9.8f is gravity acceleration
 
-	// y À§Ä¡ ¾÷µ¥ÀÌÆ®
+	// y ìœ„ì¹˜ ì—…ë°ì´íŠ¸
 	position.y += vy * deltaTime;
 
-	// ¹Ù´Ú Ãæµ¹ Ã¼Å© (¿ÏÀüÅº¼º Ãæµ¹)
+	// ë°”ë‹¥ ì¶©ëŒ ì²´í¬ (ì™„ì „íƒ„ì„± ì¶©ëŒ)
 	if (position.y <= -20.0f) { // groundY = -20.0f
-		position.y = -20.0f;  // ¹Ù´Ú À§Ä¡·Î º¸Á¤
-		vy *= -1.0f;  // ¼Óµµ ¹İÀü (¿ÏÀüÅº¼º)
+		position.y = -20.0f;  // ë°”ë‹¥ ìœ„ì¹˜ë¡œ ë³´ì •
+		vy *= -1.0f;  // ì†ë„ ë°˜ì „ (ì™„ì „íƒ„ì„±)
 		if (vy < 29.2f) {
-			vy = 29.2f; // ÃÖ¼Ò ¹İ¹ß ¼Óµµ ¼³Á¤
+			vy = 29.2f; // ìµœì†Œ ë°˜ë°œ ì†ë„ ì„¤ì •
 		}
 	}
 
@@ -88,7 +138,7 @@ void Bullet::update_second_paze(float deltaTime)
 }
 
 
-void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) // ·»´õ¸µ ÇÒ ¶§ ³Ñ°ÜÁà¾ß ÇÏ´Â °ªµé - shaderProgramID, VAO, VBO, vertices, Á¤Á¡ °³¼ö
+void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) // ë Œë”ë§ í•  ë•Œ ë„˜ê²¨ì¤˜ì•¼ í•˜ëŠ” ê°’ë“¤ - shaderProgramID, VAO, VBO, vertices, ì •ì  ê°œìˆ˜
 {
 	// shpere's radius = 1.0f, scale = 1.5f -> actual radius = 1.5f
 	unsigned int modelLocation = glGetUniformLocation(shaderProgramID, "model");
@@ -115,58 +165,78 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& playerPosWorld)
 {
 	// -------------------------------------------------------
-	// 1. ÃÑ¾Ë (Bullet) Åõ¿µ -> È­¸é»ó ¿µ¿ª(Å¸¿ø) °è»ê
+	// 1. ì´ì•Œ (Bullet) íˆ¬ì˜ -> í™”ë©´ìƒ ì˜ì—­(íƒ€ì›) ê³„ì‚°
 	// -------------------------------------------------------
 	glm::vec4 bulletPos = glm::vec4(position, 1.0f);
 	glm::vec4 bulletViewPos = view * bulletPos;
 
-	// Ä«¸Ş¶ó µÚ¿¡ ÀÖ°Å³ª ³Ê¹« °¡±î¿ì¸é ¹«½Ã
+	// ì¹´ë©”ë¼ ë’¤ì— ìˆê±°ë‚˜ ë„ˆë¬´ ê°€ê¹Œìš°ë©´ ë¬´ì‹œ
 	if (bulletViewPos.z >= -0.1f) return false;
 
-	float bulletDepth = -bulletViewPos.z; // ¾ç¼ö ±íÀÌ
+	float bulletDepth = -bulletViewPos.z; // ì–‘ìˆ˜ ê¹Šì´
 
-	// ÃÑ¾Ë Áß½ÉÁ¡ NDC º¯È¯
+	// ì´ì•Œ ì¤‘ì‹¬ì  NDC ë³€í™˜
 	float bx_ndc = bulletViewPos.x * proj[0][0] / bulletDepth;
 	float by_ndc = bulletViewPos.y * proj[1][1] / bulletDepth;
 
-	// ÃÑ¾ËÀÇ È­¸é»ó ¹İÁö¸§ (Radius) °è»ê
-	// scale.x, scale.y°¡ ¿ùµå °ø°£¿¡¼­ÀÇ ¹İÁö¸§ÀÌ¶ó°í °¡Á¤
+	// ì´ì•Œì˜ í™”ë©´ìƒ ë°˜ì§€ë¦„ (Radius) ê³„ì‚°
 	float b_radius_x_ndc = scale.x * proj[0][0] / bulletDepth / 2;
 	float b_radius_y_ndc = scale.y * proj[1][1] / bulletDepth / 2;
 
 
 	// -------------------------------------------------------
-	// 2. ÇÃ·¹ÀÌ¾î (Player) Åõ¿µ -> È­¸é»ó Á¡(Point) °è»ê
+	// 2. í”Œë ˆì´ì–´ (Player) íˆ¬ì˜ -> í™”ë©´ìƒ ì›(Circle) ê³„ì‚°
 	// -------------------------------------------------------
-	glm::vec4 playerPos = glm::vec4(playerPosWorld, 1.0f);
+	// í”Œë ˆì´ì–´ ì¶©ëŒ íŒì • ìœ„ì¹˜ ê³„ì‚° (debugSphereModelê³¼ ë™ì¼)
+	glm::vec3 playerCollisionPos = playerPosWorld;
+	playerCollisionPos.z += 0.3f; // êµ¬ì²´ê°€ í”Œë ˆì´ì–´ ì•ì— ìœ„ì¹˜
+	playerCollisionPos.y -= 0.3f; // êµ¬ì²´ê°€ í”Œë ˆì´ì–´ ì•„ë˜ì— ìœ„ì¹˜
+	
+	glm::vec4 playerPos = glm::vec4(playerCollisionPos, 1.0f);
 	glm::vec4 playerViewPos = view * playerPos;
 
-	// ÇÃ·¹ÀÌ¾î°¡ Ä«¸Ş¶ó µÚ¿¡ ÀÖÀ¸¸é ¹«½Ã
+	// í”Œë ˆì´ì–´ê°€ ì¹´ë©”ë¼ ë’¤ì— ìˆìœ¼ë©´ ë¬´ì‹œ
 	if (playerViewPos.z >= -0.1f) return false;
 
 	float playerDepth = -playerViewPos.z;
 
-	// ÇÃ·¹ÀÌ¾î Áß½ÉÁ¡ NDC º¯È¯ (¹İÁö¸§ °è»ê ºÒÇÊ¿ä)
+	// í”Œë ˆì´ì–´ ì¤‘ì‹¬ì  NDC ë³€í™˜
 	float px_ndc = playerViewPos.x * proj[0][0] / playerDepth;
 	float py_ndc = playerViewPos.y * proj[1][1] / playerDepth;
+	
+	// í”Œë ˆì´ì–´ì˜ í™”ë©´ìƒ ë°˜ì§€ë¦„ ê³„ì‚° (debugSphereModelì˜ scale: 1.3f)
+	const float PLAYER_RADIUS = 0.5f;
+	float p_radius_x_ndc = PLAYER_RADIUS * proj[0][0] / playerDepth / 2;
+	float p_radius_y_ndc = PLAYER_RADIUS * proj[1][1] / playerDepth / 2;
 
 
 	// -------------------------------------------------------
-	// 3. Ãæµ¹ °Ë»ç: Á¡ÀÌ Å¸¿ø ¾È¿¡ ÀÖ´Â°¡?
+	// 3. ì¶©ëŒ ê²€ì‚¬: ì› ëŒ€ ì› ì¶©ëŒ (íƒ€ì› ëŒ€ íƒ€ì›)
 	// -------------------------------------------------------
-
-	float dx = px_ndc - bx_ndc; // ÇÃ·¹ÀÌ¾î Á¡ - ÃÑ¾Ë Áß½É
+	// ë‘ ì›ì˜ ì¤‘ì‹¬ ì‚¬ì´ ê±°ë¦¬ ê³„ì‚°
+	float dx = px_ndc - bx_ndc;
 	float dy = py_ndc - by_ndc;
-
-	// Å¸¿ø ¹æÁ¤½Ä: (x / rx)^2 + (y / ry)^2 <= 1
-	// ÀÌ °ªÀÌ 1º¸´Ù ÀÛ°Å³ª °°À¸¸é Á¡ÀÌ Å¸¿ø ³»ºÎ¿¡ ÀÖ´Â °ÍÀÔ´Ï´Ù.
-
-	float x_term = dx / b_radius_x_ndc;
-	float y_term = dy / b_radius_y_ndc;
-
-	if ((x_term * x_term) + (y_term * y_term) <= 1.0f) 
+	
+	// íƒ€ì› ëŒ€ íƒ€ì› ì¶©ëŒ: ë¶„ë¦¬ì¶• ì •ë¦¬(SAT)ì˜ ê°„ë‹¨í•œ ê·¼ì‚¬
+	// ê° íƒ€ì›ì„ ì •ê·œí™”ëœ ê³µê°„ìœ¼ë¡œ ë³€í™˜í•˜ì—¬ ì›ìœ¼ë¡œ ë§Œë“  í›„ ê±°ë¦¬ ë¹„êµ
+	
+	// ì´ì•Œ íƒ€ì›ì˜ í‰ê·  ë°˜ì§€ë¦„
+	float b_radius_avg = (b_radius_x_ndc + b_radius_y_ndc) / 2.0f;
+	// í”Œë ˆì´ì–´ íƒ€ì›ì˜ í‰ê·  ë°˜ì§€ë¦„
+	float p_radius_avg = (p_radius_x_ndc + p_radius_y_ndc) / 2.0f;
+	
+	// ì •ê·œí™”ëœ ê±°ë¦¬ ê³„ì‚° (íƒ€ì› ê³µê°„ì—ì„œì˜ ê±°ë¦¬)
+	float normalized_dx = dx / ((b_radius_x_ndc + p_radius_x_ndc) / 2.0f);
+	float normalized_dy = dy / ((b_radius_y_ndc + p_radius_y_ndc) / 2.0f);
+	float normalized_distance_sq = normalized_dx * normalized_dx + normalized_dy * normalized_dy;
+	
+	// ë‘ ì›ì˜ ë°˜ì§€ë¦„ í•© (ì •ê·œí™”ëœ ê³µê°„ì—ì„œëŠ” 2.0)
+	float sum_radius = 2.0f;
+	
+	// ì¶©ëŒ íŒì •: ê±°ë¦¬ê°€ ë°˜ì§€ë¦„ í•©ë³´ë‹¤ ì‘ìœ¼ë©´ ì¶©ëŒ
+	if (normalized_distance_sq <= sum_radius * sum_radius)
 	{
-		std::cout << "Collision detected (Point inside Bullet)!" << std::endl;
+		std::cout << "Collision detected (Circle vs Circle)!" << std::endl;
 		return true;
 	}
 

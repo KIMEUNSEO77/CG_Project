@@ -279,31 +279,41 @@ void SpawnBullet(int pattern)
 
 void BulletTimer(int value)
 {
+	clock_t currentTime = clock();
+	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
+	lastTime = currentTime;
+
+	player.move(deltaTime, vTransform, pTransform);
 	if (currentStage == 1)
 	{
-		clock_t currentTime = clock();
-		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
-		lastTime = currentTime;
+		
 		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			b.update_first_paze(deltaTime);
-			b.collide(vTransform, pTransform, ppos);
+			//b.update_first_paze(deltaTime);
+			if (b.collide(vTransform, pTransform, ppos))
+			{
+				player.damaged(10.0f);   // HP 깎기
+				// 필요하면 총알 지우기
+				// b를 erase 해야 하면 구조 조금 바꿔야 함
+			}
 		}
 	}
 	else if (currentStage == 2)
 	{
-		clock_t currentTime = clock();
-		float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
-		lastTime = currentTime;
 		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
 			b.update_second_paze(deltaTime);
 			
-			b.collide(vTransform, pTransform, ppos);
+			if (b.collide(vTransform, pTransform, ppos))
+			{
+				player.damaged(10.0f);   // HP 깎기
+				// 필요하면 총알 지우기
+				// b를 erase 해야 하면 구조 조금 바꿔야 함
+			}
 		}
 	}
 	else
@@ -396,13 +406,16 @@ void UpdateBullets()
 void CreateBulletPaze_1()
 {
 	bullets.clear();
-	for (int i = 0; i < 144 * 3; ++i)
+	int wide = 24;
+	for (int i = 0; i < wide * 3; ++i)
 	{
-		float xgap = static_cast <float>(i / 3) * 2;
+		float xgap = static_cast <float>(i / 3) * ( 144 / wide );
 		Bullet* b = new Bullet();
 		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
+		//b->setScale(glm::vec3(1.0f));
 		b->setColor(color1);
+
 		bullets.push_back(*b);
 	}
 }
@@ -413,14 +426,15 @@ void CreateBulletPaze_2()
 	float xangle = bulletAngleDistribution(generator);
 	
 	//39 / 2 = 19.5
-
-	for (int i = 0; i < 19 + 1; ++i)
+	int vertexgap = 8;
+	float bulletscale = 0.5f;
+	for (int i = 0; i < 13 + 1; ++i)
 	{
 		float xgap = static_cast <float>(i) * 6;
 		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
-		for (int j = 0; j < 10; ++j)
+		for (int j = 0; j < vertexgap; ++j)
 		{
-			float ygap = static_cast <float>(j) * 4 + 1;
+			float ygap = static_cast <float>(j) * (40 / vertexgap) + 1;
 			Bullet* b = new Bullet();
 			glm::vec3 initialPos(-39.0f + xgap, 20.0f - ygap, 10.0f);
 			// rotate around Y axis by xangle
@@ -432,6 +446,7 @@ void CreateBulletPaze_2()
 			//b->setPosition(glm::vec3(initialPos));
 			glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b->setColor(color1);
+			b->setScale(glm::vec3(bulletscale));
 			bullets.push_back(*b);
 
 			Bullet* b2 = new Bullet();
@@ -441,6 +456,7 @@ void CreateBulletPaze_2()
 			b2->setPosition(glm::vec3(rotatedPos));
 			glm::vec3 color2(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b2->setColor(color2);
+			b2->setScale(glm::vec3(bulletscale));
 			bullets.push_back(*b2);
 		}
 		xangle += 45.0f; // increase angle for next column
@@ -452,21 +468,45 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':
-		player.move(-1.0f, 0.0f); // move left
+		player.setLeftKeyDown();
 		break;
 	case 'd':
-		player.move(1.0f, 0.0f); // move right
+		
+		player.setRightKeyDown();
 		break;
 	case 'w':
-		player.move(0.0f, 1.0f); // move front
+		player.setUpKeyDown();
 		break;
 	case 's':
-		player.move(0.0f, -1.0f); // move back
+		player.setDownKeyDown();
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
 	}
 }
+
+
+GLvoid KeyboardUp(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'a':
+		player.resetLeftKeyDown();
+		break;
+	case 'd':
+		player.resetRightKeyDown();
+		break;
+	case 'w':
+		player.resetUpKeyDown();
+		break;
+	case 's':
+		player.resetDownKeyDown();
+		break;
+	}
+}
+
+
+
 
 // Initialize all shader uniform locations
 void InitUniformLocations(GLuint shaderProgram)
@@ -528,6 +568,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(KeyboardUp);
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
@@ -579,7 +620,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
 
 	if (currentStage == 1 || currentStage == 2) 
 	{
@@ -588,12 +629,12 @@ int main(int argc, char** argv)
 	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	if (currentStage == 1 || currentStage == 2) 
 	{
-		player.setScale(glm::vec3(1.0f));
+		player.setScale(glm::vec3(0.5f));
 	}
 
 	if (currentStage == 3)
 	{
-		player.setScale(glm::vec3(0.15f));
+		player.setScale(glm::vec3(0.5f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
@@ -689,7 +730,7 @@ void DrawBossCube(
 	glUniformMatrix4fv(locModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(locView, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(locProj, 1, GL_FALSE, &projection[0][0]);
-
+	
 	// Boss는 텍스처 색 그대로 쓰므로 objectColor = white
 	glUniform3f(locObjColor, 1.0f, 1.0f, 1.0f);
 	glUniform3f(locLightColor, 1.0f, 1.0f, 1.0f);
@@ -750,6 +791,15 @@ GLvoid drawScene()
 
 	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
 	//glDrawArrays(GL_TRIANGLES, 0, 8448);
+
+	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
+	glm::vec3 playerPos = player.getPosition();
+	playerPos.z += 0.3f; // 구체가 플레이어 앞에 위치하도록 약간 조정
+	playerPos.y -= 0.3f; // 구체가 플레이어 아래에 위치하도록 약간 조정
+	glm::mat4 debugSphereModel = glm::translate(glm::mat4(1.0f), playerPos);
+	debugSphereModel = glm::scale(debugSphereModel, glm::vec3(1.3f)); // 작은 크기
+	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
+	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
 
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
