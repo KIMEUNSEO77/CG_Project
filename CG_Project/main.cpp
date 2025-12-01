@@ -72,6 +72,8 @@ float gBossHpStartTime = 0.0f;  // 초 단위
 bool  gBossTimerStarted = false;
 float gBossHpRatio = 1.0f;  // 0.0~1.0
 
+
+
 void UpdateBossHpTimer()
 {
 	// 프로그램 시작 후 경과 시간
@@ -430,7 +432,7 @@ void CreateBulletPaze_2()
 	float bulletscale = 0.5f;
 	for (int i = 0; i < 13 + 1; ++i)
 	{
-		float xgap = static_cast <float>(i) * 6;
+		float xgap = static_cast <float>(i) * 6 + 3;
 		// 10 bullets per xgap y distribution is 20 ~ -20, z is -50
 		for (int j = 0; j < vertexgap; ++j)
 		{
@@ -620,13 +622,13 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
+	player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	if (currentStage == 1 || currentStage == 2) 
 	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
 	}
-	player.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
+	player.setScale(glm::vec3(0.15f));
 	if (currentStage == 1 || currentStage == 2) 
 	{
 		player.setScale(glm::vec3(0.5f));
@@ -634,7 +636,7 @@ int main(int argc, char** argv)
 
 	if (currentStage == 3)
 	{
-		player.setScale(glm::vec3(0.5f));
+		player.setScale(glm::vec3(0.15f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
 
@@ -795,9 +797,11 @@ GLvoid drawScene()
 	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
 	glm::vec3 playerPos = player.getPosition();
 	playerPos.z += 0.3f; // 구체가 플레이어 앞에 위치하도록 약간 조정
-	playerPos.y -= 0.3f; // 구체가 플레이어 아래에 위치하도록 약간 조정
+	playerPos.y -= 0.1f; // 구체가 플레이어 아래에 위치하도록 약간 조정
 	glm::mat4 debugSphereModel = glm::translate(glm::mat4(1.0f), playerPos);
-	debugSphereModel = glm::scale(debugSphereModel, glm::vec3(1.3f)); // 작은 크기
+	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
+	scaleSphereModel = glm::scale(scaleSphereModel, glm::vec3(3.0f)); // 구체 크기 조정
+	debugSphereModel = debugSphereModel * scaleSphereModel;
 	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
 	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
 
@@ -824,7 +828,7 @@ GLvoid drawScene()
 	}
 	else
 	{
-		model = glm::translate(model, glm::vec3(0.0f, -5.0f, -60.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -5.0f, -80.0f));
 		model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
 	}
 	DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
