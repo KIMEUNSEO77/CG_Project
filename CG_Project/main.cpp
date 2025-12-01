@@ -631,7 +631,7 @@ int main(int argc, char** argv)
 	if (currentStage == 3)
 	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		player.setScale(glm::vec3(0.1f));
+		player.setScale(glm::vec3(0.07f));
 		player.setVelocity(glm::vec3(1.5f, 1.5f, 0.0f));
 	}
 	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
