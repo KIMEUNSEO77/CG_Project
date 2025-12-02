@@ -87,7 +87,7 @@ float gBossHpRatio = 1.0f;  // 0.0~1.0
 
 // start time angle
 float flightangle = 0.0f;
-bool flightangleup = true;
+float flightangleradian = 0.0f;
 
 void UpdateBossHpTimer()
 {
@@ -130,23 +130,8 @@ void collidecheck()
 
 void startstageangle(float time)
 {
-
-	if (flightangleup)
-	{
-		flightangle += 15.0f * time;
-		if (flightangle >= 30.0f)
-		{
-			flightangleup = false;
-		}
-	}
-	else
-	{
-		flightangle -= 15.0f * time;
-		if (flightangle <= -30.0f)
-		{
-			flightangleup = true;
-		}
-	}
+	flightangle = sin(glm::radians(flightangleradian)) * 30.0f;
+	flightangleradian += time * 100.0f;
 
 }
 
@@ -931,8 +916,9 @@ GLvoid drawScene()
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_TITLE_2, model_2, cameraPos, lightPos, vTransform, pTransform);
 		
 		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, 10.0f, 0.0f));
 		model_3 = glm::rotate(model_3, glm::radians(flightangle), glm::vec3(0.0f, 0.0f, 1.0f));
-		model_3 = glm::translate(model_3, glm::vec3(0.0f, -7.0f, -10.0f));
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, -18.0f, -10.0f));
 		model_3 = glm::rotate(model_3, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model_3 = glm::scale(model_3, glm::vec3(45.0f, 35.0f, 0.01f));
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_chase, model_3, cameraPos, lightPos, vTransform, pTransform);
