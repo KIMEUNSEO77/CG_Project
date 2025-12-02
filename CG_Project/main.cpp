@@ -44,6 +44,7 @@ GLuint tex_chase;
 
 Player player; // player object(temp)
 int currentStage = 0;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
+int nextStage = 0;    // next stage - before go to loading, set next stage here
 
 std::vector<Bullet> bullets;  // bullet objects
 
