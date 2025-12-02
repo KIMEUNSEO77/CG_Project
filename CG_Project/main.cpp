@@ -28,9 +28,18 @@ GLuint tex_boss;   // boss texture
 // icon textures
 GLuint tex_icon_boss;
 GLuint tex_icon_player;
+// game clear textures
+GLuint tex_GAMECLEAR_1;
+GLuint tex_GAMECLEAR_2;
+GLuint tex_boss_died;
+GLuint tex_player_smile;
+// game over texture
+GLuint tex_GAMEOVER_1;
+GLuint tex_GAMEOVER_2;
+GLuint tex_boss_smile;
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3
+int currentStage = 4;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -565,6 +574,13 @@ int main(int argc, char** argv)
 	tex_boss = LoadTexture("boss_image.png"); // boss texture load
 	tex_icon_boss = LoadTexture("icon_boss.png"); // boss icon texture load
 	tex_icon_player = LoadTexture("icon_airplane.png"); // player icon texture load
+	tex_GAMECLEAR_1 = LoadTexture("CG_GameClear_1.png"); // game over texture load
+	tex_GAMECLEAR_2 = LoadTexture("CG_GameClear_2.png");
+	tex_boss_died = LoadTexture("boss_died.png");
+	tex_player_smile = LoadTexture("game_clear_airplane.png");
+	tex_GAMEOVER_1 = LoadTexture("CG_GameOver_1.png"); // game over texture load
+	tex_GAMEOVER_2 = LoadTexture("CG_GameOver_2.png");
+	tex_boss_smile = LoadTexture("boss_smile.png");
 
 	// callback 
 	glutDisplayFunc(drawScene);
@@ -817,50 +833,93 @@ GLvoid drawScene()
 	glBindVertexArray(0);
 
 	// hp bar draw
-	DrawHPBars(player);
+	if (currentStage == 1 || currentStage == 2 || currentStage == 3)
+	{
+		DrawHPBars(player);
 
-	// boss cube draw
-	glm::mat4 model = glm::mat4(1.0f);
-	if (currentStage == 3)
-	{
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
-		model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
-	}
-	else
-	{
-		model = glm::translate(model, glm::vec3(0.0f, -5.0f, -80.0f));
-		model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
-	}
-	DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
-	
-	// boss icon
-	glm::mat4 icon_boss = glm::mat4(1.0f);
-	if (currentStage == 3)
-	{
-		icon_boss = glm::translate(icon_boss, glm::vec3(11.0f, 5.5f, -10.0f));
-		icon_boss = glm::scale(icon_boss, glm::vec3(5.0f, 5.0f, 0.01f));  
-	}
-	else
-	{
-		icon_boss = glm::translate(icon_boss, glm::vec3(41.0f, 21.0f, -60.0f));
-		icon_boss = glm::scale(icon_boss, glm::vec3(20.0f, 20.0f, 0.01f));  
-	}
-	DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_boss, icon_boss, cameraPos, lightPos, vTransform, pTransform);
+		// boss cube draw
+		glm::mat4 model = glm::mat4(1.0f);
+		if (currentStage == 3)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
+			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
+		}
+		else
+		{
+			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -80.0f));
+			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+		}
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
 
-	// player icon
-	glm::mat4 icon_player = glm::mat4(1.0f);
-	if (currentStage == 3)
-	{
-		icon_player = glm::translate(icon_player, glm::vec3(-11.0f, 5.5f, -10.0f));
-		icon_player = glm::scale(icon_player, glm::vec3(4.0f, 4.0f, 0.01f));  
-	}
-	else
-	{
-		icon_player = glm::translate(icon_player, glm::vec3(-42.0f, 20.0f, -60.0f));
-		icon_player = glm::scale(icon_player, glm::vec3(20.0f, 20.0f, 0.01f)); 
-	}
-	DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_player, icon_player, cameraPos, lightPos, vTransform, pTransform);
+		// boss icon
+		glm::mat4 icon_boss = glm::mat4(1.0f);
+		if (currentStage == 3)
+		{
+			icon_boss = glm::translate(icon_boss, glm::vec3(11.0f, 5.5f, -10.0f));
+			icon_boss = glm::scale(icon_boss, glm::vec3(5.0f, 5.0f, 0.01f));
+		}
+		else
+		{
+			icon_boss = glm::translate(icon_boss, glm::vec3(41.0f, 21.0f, -60.0f));
+			icon_boss = glm::scale(icon_boss, glm::vec3(20.0f, 20.0f, 0.01f));
+		}
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_boss, icon_boss, cameraPos, lightPos, vTransform, pTransform);
 
+		// player icon
+		glm::mat4 icon_player = glm::mat4(1.0f);
+		if (currentStage == 3)
+		{
+			icon_player = glm::translate(icon_player, glm::vec3(-11.0f, 5.5f, -10.0f));
+			icon_player = glm::scale(icon_player, glm::vec3(4.0f, 4.0f, 0.01f));
+		}
+		else
+		{
+			icon_player = glm::translate(icon_player, glm::vec3(-42.0f, 20.0f, -60.0f));
+			icon_player = glm::scale(icon_player, glm::vec3(20.0f, 20.0f, 0.01f));
+		}
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_player, icon_player, cameraPos, lightPos, vTransform, pTransform);
+	}
+
+	if (currentStage == 4)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-5.0f, 3.0f, -10.0f));
+		model = glm::scale(model, glm::vec3(38.0f, 20.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_GAMECLEAR_1, model, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_2 = glm::mat4(1.0f);
+		model_2 = glm::translate(model_2, glm::vec3(5.0f, -0.1f, -10.0f));
+		model_2 = glm::scale(model_2, glm::vec3(35.0f, 20.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_GAMECLEAR_2, model_2, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, -8.0f, -10.0f));
+		model_3 = glm::scale(model_3, glm::vec3(45.0f, 45.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss_died, model_3, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_4 = glm::mat4(1.0f);
+		model_4 = glm::translate(model_4, glm::vec3(11.0f, -9.0f, -9.0f));
+		model_4 = glm::scale(model_4, glm::vec3(50.0f, 30.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_player_smile, model_4, cameraPos, lightPos, vTransform, pTransform);
+	}
+
+	if (currentStage == -1)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-4.0f, 2.5f, -10.0f));
+		model = glm::scale(model, glm::vec3(23.0f, 15.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_GAMEOVER_1, model, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_2 = glm::mat4(1.0f);
+		model_2 = glm::translate(model_2, glm::vec3(4.0f, 2.3f, -10.0f));
+		model_2 = glm::scale(model_2, glm::vec3(23.0f, 15.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_GAMEOVER_2, model_2, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, -9.0f, -10.0f));
+		model_3 = glm::scale(model_3, glm::vec3(45.0f, 45.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss_smile, model_3, cameraPos, lightPos, vTransform, pTransform);
+	}
 
 	glutSwapBuffers();
 }
