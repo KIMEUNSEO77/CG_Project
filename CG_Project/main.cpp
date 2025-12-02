@@ -31,9 +31,10 @@ GLuint tex_icon_player;
 // mode textures
 GLuint tex_GAMECLEAR_1;
 GLuint tex_GAMECLEAR_2;
+GLuint tex_boss_died;
 
 Player player; // player object(temp)
-int currentStage = 4;   // current stage 0: title, 1, 2, 3
+int currentStage = -1;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -570,6 +571,7 @@ int main(int argc, char** argv)
 	tex_icon_player = LoadTexture("icon_airplane.png"); // player icon texture load
 	tex_GAMECLEAR_1 = LoadTexture("CG_GameClear_1.png"); // game over texture load
 	tex_GAMECLEAR_2 = LoadTexture("CG_GameClear_2.png");
+	tex_boss_died = LoadTexture("boss_died.png");
 
 	// callback 
 	glutDisplayFunc(drawScene);
@@ -872,14 +874,19 @@ GLvoid drawScene()
 	if (currentStage == 4)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-4.0f, 3.0f, -10.0f));
-		model = glm::scale(model, glm::vec3(33.0f, 20.0f, 0.01f));
+		model = glm::translate(model, glm::vec3(-5.0f, 3.0f, -10.0f));
+		model = glm::scale(model, glm::vec3(38.0f, 20.0f, 0.01f));
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_GAMECLEAR_1, model, cameraPos, lightPos, vTransform, pTransform);
 
 		glm::mat4 model_2 = glm::mat4(1.0f);
-		model_2 = glm::translate(model_2, glm::vec3(4.0f, -0.1f, -10.0f));
-		model_2 = glm::scale(model_2, glm::vec3(30.0f, 20.0f, 0.01f));
+		model_2 = glm::translate(model_2, glm::vec3(5.0f, -0.1f, -10.0f));
+		model_2 = glm::scale(model_2, glm::vec3(35.0f, 20.0f, 0.01f));
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_GAMECLEAR_2, model_2, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, -8.0f, -10.0f));
+		model_3 = glm::scale(model_3, glm::vec3(45.0f, 45.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss_died, model_3, cameraPos, lightPos, vTransform, pTransform);
 	}
 
 	glutSwapBuffers();
