@@ -37,9 +37,14 @@ GLuint tex_player_smile;
 GLuint tex_GAMEOVER_1;
 GLuint tex_GAMEOVER_2;
 GLuint tex_boss_smile;
+// title texture
+GLuint tex_TITLE_1;
+GLuint tex_TITLE_2;
+GLuint tex_chase;
 
 Player player; // player object(temp)
-int currentStage = 4;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
+int currentStage = 0;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
+int nextStage = 0;    // next stage - before go to loading, set next stage here
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -81,7 +86,9 @@ float gBossHpStartTime = 0.0f;  // 초 단위
 bool  gBossTimerStarted = false;
 float gBossHpRatio = 1.0f;  // 0.0~1.0
 
-
+// start time angle
+float flightangle = 0.0f;
+float flightangleradian = 0.0f;
 
 void UpdateBossHpTimer()
 {
@@ -121,6 +128,14 @@ void collidecheck()
 		}
 	}
 }
+
+void startstageangle(float time)
+{
+	flightangle = sin(glm::radians(flightangleradian)) * 30.0f;
+	flightangleradian += time * 100.0f;
+
+}
+
 
 	// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
@@ -317,7 +332,7 @@ void BulletTimer(int value)
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			//b.update_second_paze(deltaTime);
+			b.update_second_paze(deltaTime);
 			
 			if (b.collide(vTransform, pTransform, ppos))
 			{
@@ -375,7 +390,9 @@ void BulletTimer(int value)
 		if (t > 88.0f && t < 90.0f) SpawnBullet(11); // 11번 패턴
 		if (t > 87.0f && t < 90.0f) SpawnBullet(3); // 3번 패턴
 	}
- 
+	
+	startstageangle(deltaTime);
+
 	glutPostRedisplay();
 	glutTimerFunc(16, BulletTimer, 0); 
 }
@@ -473,6 +490,7 @@ void CreateBulletPaze_2()
 		xangle += 45.0f; // increase angle for next column
 	}
 }
+
 
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
@@ -581,6 +599,9 @@ int main(int argc, char** argv)
 	tex_GAMEOVER_1 = LoadTexture("CG_GameOver_1.png"); // game over texture load
 	tex_GAMEOVER_2 = LoadTexture("CG_GameOver_2.png");
 	tex_boss_smile = LoadTexture("boss_smile.png");
+	tex_TITLE_1 = LoadTexture("title.png");
+	tex_TITLE_2 = LoadTexture("pressanykey.png");;
+	tex_chase = LoadTexture("start_sprite.png");;
 
 	// callback 
 	glutDisplayFunc(drawScene);
@@ -880,6 +901,31 @@ GLvoid drawScene()
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_player, icon_player, cameraPos, lightPos, vTransform, pTransform);
 	}
 
+	// title screen
+	if (currentStage == 0)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -10.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(38.0f * 2, 20.0f * 2, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_TITLE_1, model, cameraPos, lightPos, vTransform, pTransform);
+		glm::mat4 model_2 = glm::mat4(1.0f);
+		
+		model_2 = glm::translate(model_2, glm::vec3(0.0f, -9.0f, -10.0f));
+		model_2 = glm::rotate(model_2, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model_2 = glm::scale(model_2, glm::vec3(35.0f, 20.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_TITLE_2, model_2, cameraPos, lightPos, vTransform, pTransform);
+		
+		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, 10.0f, 0.0f));
+		model_3 = glm::rotate(model_3, glm::radians(flightangle), glm::vec3(0.0f, 0.0f, 1.0f));
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, -18.0f, -10.0f));
+		model_3 = glm::rotate(model_3, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model_3 = glm::scale(model_3, glm::vec3(45.0f, 35.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_chase, model_3, cameraPos, lightPos, vTransform, pTransform);
+	}
+
+	// clear screen
 	if (currentStage == 4)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
@@ -903,6 +949,7 @@ GLvoid drawScene()
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_player_smile, model_4, cameraPos, lightPos, vTransform, pTransform);
 	}
 
+	// game over screen
 	if (currentStage == -1)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
