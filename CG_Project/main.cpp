@@ -37,9 +37,13 @@ GLuint tex_player_smile;
 GLuint tex_GAMEOVER_1;
 GLuint tex_GAMEOVER_2;
 GLuint tex_boss_smile;
+// title texture
+GLuint tex_TITLE_1;
+GLuint tex_TITLE_2;
+GLuint tex_chase;
 
 Player player; // player object(temp)
-int currentStage = 3;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
+int currentStage = 0;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -581,6 +585,9 @@ int main(int argc, char** argv)
 	tex_GAMEOVER_1 = LoadTexture("CG_GameOver_1.png"); // game over texture load
 	tex_GAMEOVER_2 = LoadTexture("CG_GameOver_2.png");
 	tex_boss_smile = LoadTexture("boss_smile.png");
+	tex_TITLE_1 = LoadTexture("title.png");
+	tex_TITLE_2 = LoadTexture("pressanykey.png");;
+	tex_chase = LoadTexture("start_sprite.png");;
 
 	// callback 
 	glutDisplayFunc(drawScene);
@@ -880,6 +887,30 @@ GLvoid drawScene()
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_icon_player, icon_player, cameraPos, lightPos, vTransform, pTransform);
 	}
 
+	// title screen
+	if (currentStage == 0)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -10.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(38.0f * 2, 20.0f * 2, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_TITLE_1, model, cameraPos, lightPos, vTransform, pTransform);
+		glm::mat4 model_2 = glm::mat4(1.0f);
+		
+		model_2 = glm::translate(model_2, glm::vec3(0.0f, -9.0f, -10.0f));
+		model_2 = glm::rotate(model_2, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model_2 = glm::scale(model_2, glm::vec3(35.0f, 20.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_TITLE_2, model_2, cameraPos, lightPos, vTransform, pTransform);
+		
+		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::rotate(model_3, glm::radians(30.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		model_3 = glm::translate(model_3, glm::vec3(0.0f, -9.0f, -10.0f));
+		model_3 = glm::rotate(model_3, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model_3 = glm::scale(model_3, glm::vec3(45.0f, 45.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_chase, model_3, cameraPos, lightPos, vTransform, pTransform);
+	}
+
+	// clear screen
 	if (currentStage == 4)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
@@ -903,6 +934,7 @@ GLvoid drawScene()
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_player_smile, model_4, cameraPos, lightPos, vTransform, pTransform);
 	}
 
+	// game over screen
 	if (currentStage == -1)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
