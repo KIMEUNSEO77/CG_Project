@@ -28,10 +28,14 @@ GLuint tex_boss;   // boss texture
 // icon textures
 GLuint tex_icon_boss;
 GLuint tex_icon_player;
-// mode textures
+// game clear textures
 GLuint tex_GAMECLEAR_1;
 GLuint tex_GAMECLEAR_2;
 GLuint tex_boss_died;
+// game over texture
+GLuint tex_GAMEOVER_1;
+GLuint tex_GAMEOVER_2;
+GLuint tex_boss_smile;
 
 Player player; // player object(temp)
 int currentStage = -1;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
