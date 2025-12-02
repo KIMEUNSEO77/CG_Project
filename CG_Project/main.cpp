@@ -39,7 +39,7 @@ GLuint tex_GAMEOVER_2;
 GLuint tex_boss_smile;
 
 Player player; // player object(temp)
-int currentStage = 4;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
+int currentStage = 3;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear
 
 std::vector<Bullet> bullets;  // bullet objects
 
@@ -317,7 +317,7 @@ void BulletTimer(int value)
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			//b.update_second_paze(deltaTime);
+			b.update_second_paze(deltaTime);
 			
 			if (b.collide(vTransform, pTransform, ppos))
 			{
