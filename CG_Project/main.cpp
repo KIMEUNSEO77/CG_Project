@@ -958,14 +958,28 @@ GLvoid drawScene()
 	if (currentStage == 5)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -10.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 3.0f, -10.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(38.0f, 20.0f, 0.01f));
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_LOADING, model, cameraPos, lightPos, vTransform, pTransform);
 
 		glm::mat4 model_2 = glm::mat4(1.0f);
-		model_2 = glm::translate(model_2, glm::vec3(0.0f, -8.0f, -10.0f));
+		model_2 = glm::translate(model_2, glm::vec3(0.0f, sin(glm::radians(flightangle)) * 2.0f - 5.0f, -10.0f));
+		model_2 = glm::rotate(model_2, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model_2 = glm::scale(model_2, glm::vec3(20.0f, 20.0f, 0.01f));
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_floating, model_2, cameraPos, lightPos, vTransform, pTransform);
+
+		glm::mat4 model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(8.0f, sin(glm::radians(flightangle - 10.0f)) * 2.0f - 5.0f, -10.0f));
+		model_3 = glm::rotate(model_3, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model_3 = glm::scale(model_3, glm::vec3(20.0f, 20.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_floating, model_3, cameraPos, lightPos, vTransform, pTransform);
+
+		model_3 = glm::mat4(1.0f);
+		model_3 = glm::translate(model_3, glm::vec3(-8.0f, sin(glm::radians(flightangle + 10.0f)) * 2.0f - 5.0f, -10.0f));
+		model_3 = glm::rotate(model_3, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model_3 = glm::scale(model_3, glm::vec3(20.0f, 20.0f, 0.01f));
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_floating, model_3, cameraPos, lightPos, vTransform, pTransform);
 	}
 
 	// game over screen
