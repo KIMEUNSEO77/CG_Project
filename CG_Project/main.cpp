@@ -67,6 +67,8 @@ bool rotatingCamera = false; // 카메라 회전 여부
 
 clock_t lastTime;  // 이전 프레임 시간
 
+bool immortalMode = false; // 무적 모드 여부
+
 // variables for shader uniforms
 GLint lightOnLoc;
 GLint lightColorLoc;
@@ -356,6 +358,8 @@ void BulletTimer(int value)
 	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
 	lastTime = currentTime;
 
+	int colidecheck = 0;
+
 	player.move(deltaTime, vTransform, pTransform);
 	if (currentStage == 1)
 	{
@@ -369,6 +373,7 @@ void BulletTimer(int value)
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
 				// b를 erase 해야 하면 구조 조금 바꿔야 함
+				colidecheck = 1;
 			}
 		}
 	}
@@ -385,6 +390,7 @@ void BulletTimer(int value)
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
 				// b를 erase 해야 하면 구조 조금 바꿔야 함
+				colidecheck = 1;
 			}
 		}
 	}
@@ -404,6 +410,7 @@ void BulletTimer(int value)
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
 				// b를 erase 해야 하면 구조 조금 바꿔야 함
+				colidecheck = 1;
 			}
 		}
 
@@ -439,6 +446,20 @@ void BulletTimer(int value)
 		if (t > 87.0f && t < 90.0f) SpawnBullet(3); // 3번 패턴
 	}
 	
+	if (colidecheck)
+	{
+		if (player.getCurrentHp() <= 0) {
+			if (!immortalMode) {
+				pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+
+				currentStage = -1; // loading
+				player.setScale(glm::vec3(0.0f));
+				bullets.clear();
+
+			}
+		}
+	}
+
 	startstageangle(deltaTime);
 
 	glutPostRedisplay();
@@ -481,7 +502,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
-	gBossHpMax = 45.0f;
+	gBossHpMax = 25.0f;
 	bullets.clear();
 	int wide = 24;
 	for (int i = 0; i < wide * 3; ++i)
@@ -499,7 +520,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 15.0f;
+	gBossHpMax = 20.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -585,12 +606,16 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	case 's':
 		player.resetDownKeyDown();
 		break;
+	case '+':
+		immortalMode = !immortalMode; // toggle immortal mode
+		break;
 	}
 }
 
 // for stage setting
 void loadingto(int value)
 {
+	player.setCurrentHp(player.getMaxHp()); // hp full restore
 	gBossTimerStarted = false; // reset boss timer
 	currentStage = nextStage;
 	if (currentStage == 1) CreateBulletPaze_1();
