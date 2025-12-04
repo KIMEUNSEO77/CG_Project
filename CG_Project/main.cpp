@@ -46,7 +46,7 @@ GLuint tex_LOADING;
 GLuint tex_floating;
 
 Player player; // player object(temp)
-int currentStage = 5;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear, 5: loading
+int currentStage = 0;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear, 5: loading
 int nextStage = 0;    // next stage - before go to loading, set next stage here
 
 std::vector<Bullet> bullets;  // bullet objects
@@ -112,6 +112,8 @@ void UpdateBossHpTimer()
 
 	gBossHpRatio = remaining / gBossHpMax;   // 0.0 ~ 1.0
 }
+
+void totheloading(int value);
 
 void collidecheck() 
 {
@@ -529,6 +531,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
+	}
+
+	if (currentStage == 0) {
+		totheloading(0);
 	}
 }
 
