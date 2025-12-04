@@ -140,6 +140,7 @@
     <ClInclude Include="filetobuf.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="shaderMaker.h" />
+    <ClInclude Include="sound_load.h" />
     <ClInclude Include="sphere_obj_load.h" />
     <ClInclude Include="texture_load.h" />
   </ItemGroup>

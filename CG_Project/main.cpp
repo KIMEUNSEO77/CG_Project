@@ -16,6 +16,7 @@
 #include "Object.h"
 #include "sphere_obj_load.h"
 #include "texture_load.h"  // load texture
+#include "sound_load.h"    // load sound
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
@@ -99,6 +100,47 @@ float flightangleradian = 0.0f;
 float bulletspawntimer = 0.0f;
 
 void totheloading(int value);
+
+// currentStage에 따라 BGM 재생
+void UpdateBGMByStage()
+{
+	if (!gFmodSystem) return;
+
+	// 스테이지가 안 바뀌었으면 그대로
+	if (currentStage == gLastBGMStage)
+		return;
+
+	gLastBGMStage = currentStage;
+
+	FMOD::Sound* bgm = nullptr;
+
+	switch (currentStage)
+	{
+	case 0: // 타이틀
+		bgm = gBgmPaze[0];
+		break;
+	case 1: // 1페이즈
+		bgm = gBgmPaze[1];
+		break;
+	case 2: // 2페이즈
+		bgm = gBgmPaze[2];
+		break;
+	case 3: // 3페이즈
+		bgm = gBgmPaze[3];
+		break;
+	case 5: // 로딩
+		bgm = gBgmLoading; break;
+
+	case 4: // Game Clear
+		bgm = nullptr; break;
+	case -1: // Game Over
+		bgm = nullptr; break;
+
+	default: bgm = nullptr; break;
+	}
+
+	PlayBGM(bgm);
+}
 
 void UpdateBossHpTimer()
 {
@@ -671,6 +713,10 @@ int main(int argc, char** argv)
 
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	// sound init
+	if (!InitSound()) std::cerr << "사운드 초기화 실패\n";
+	
 
 	InitCube();  // boss cube init
 	tex_bg = LoadTexture("CG_BackGround.png");  // background texture load
