@@ -888,6 +888,24 @@ GLvoid drawScene()
 
 	std::vector<float> bulletVertices; // temp
 
+	// boss draw
+	if (currentStage == 1 || currentStage == 2 || currentStage == 3) {
+		// boss cube draw
+		glm::mat4 model = glm::mat4(1.0f);
+		if (currentStage == 3)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
+			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
+		}
+		else
+		{
+			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -89.0f));
+			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+		}
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
+	}
+	glUseProgram(shaderProgramID);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
 	//glDrawArrays(GL_TRIANGLES, 0, 8448);
 
@@ -929,20 +947,6 @@ GLvoid drawScene()
 	if (currentStage == 1 || currentStage == 2 || currentStage == 3)
 	{
 		DrawHPBars(player);
-
-		// boss cube draw
-		glm::mat4 model = glm::mat4(1.0f);
-		if (currentStage == 3)
-		{
-			model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
-			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
-		}
-		else
-		{
-			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -89.0f));
-			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
-		}
-		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
 
 		// boss icon
 		glm::mat4 icon_boss = glm::mat4(1.0f);
