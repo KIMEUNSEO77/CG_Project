@@ -904,6 +904,12 @@ void DrawBossCube(
 
 GLvoid drawScene()
 {
+	// current stage BGM play
+	UpdateBGMByStage();
+
+	// FMOD update
+	if (gFmodSystem) gFmodSystem->update();
+
 	UpdateBullets();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
