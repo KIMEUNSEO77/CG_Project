@@ -139,6 +139,21 @@ void startstageangle(float time)
 
 }
 
+void playersetting() {
+	if (currentStage == 1 || currentStage == 2)
+	{
+		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
+		player.setScale(glm::vec3(0.5f));
+	}
+
+	if (currentStage == 3)
+	{
+		player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		player.setScale(glm::vec3(0.07f));
+		player.setVelocity(glm::vec3(1.5f, 1.5f, 0.0f));
+	}
+	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+}
 
 	// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
@@ -537,6 +552,7 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	}
 }
 
+// 
 
 
 
@@ -664,19 +680,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if (currentStage == 1 || currentStage == 2) 
-	{
-		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
-		player.setScale(glm::vec3(0.5f));
-	}
-
-	if (currentStage == 3)
-	{
-		player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		player.setScale(glm::vec3(0.07f));
-		player.setVelocity(glm::vec3(1.5f, 1.5f, 0.0f));
-	}
-	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+	// player setting
 
 	glutMainLoop();
 
