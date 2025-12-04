@@ -154,6 +154,14 @@ void startstageangle(float time)
 }
 
 void playersetting() {
+	// Initialize projection transform
+	if (currentStage == 1) {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
+	}
+	else {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	}
+
 	if (currentStage == 1 || currentStage == 2)
 	{
 		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
@@ -465,6 +473,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
+	gBossHpMax = 45.0f;
 	bullets.clear();
 	int wide = 24;
 	for (int i = 0; i < wide * 3; ++i)
@@ -482,6 +491,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
+	gBossHpMax = 15.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -573,9 +583,11 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 // for stage setting
 void loadingto(int value)
 {
+	gBossTimerStarted = false; // reset boss timer
 	currentStage = nextStage;
 	if (currentStage == 1) CreateBulletPaze_1();
-	if (currentStage == 2) CreateBulletPaze_2();
+	else if (currentStage == 2) CreateBulletPaze_2();
+	else gBossHpMax = 3.0f;
 	playersetting();
 }
 
@@ -621,13 +633,7 @@ void InitTransformsAndLighting()
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
 
-	// Initialize projection transform
-	if (currentStage == 1) {
-		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
-	}
-	else {
-		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-	}
+	
 
 }
 
@@ -673,8 +679,8 @@ int main(int argc, char** argv)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// bullet insert
-	if (currentStage == 1) CreateBulletPaze_1();
-	if (currentStage == 2) CreateBulletPaze_2();
+	//if (currentStage == 1) CreateBulletPaze_1();
+	//if (currentStage == 2) CreateBulletPaze_2();
 
 	make_vertexShaders();
 	make_fragmentShaders();
