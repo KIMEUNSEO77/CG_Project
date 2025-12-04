@@ -41,7 +41,7 @@ bool InitSound()
     gFmodSystem->createSound("3paze.mp3",
         FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &gBgmPaze[3]);
 
-    gFmodSystem->createSound("Loading.mp3",
+    gFmodSystem->createSound("Loading_2.mp3",
         FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &gBgmLoading);
 
     return true;

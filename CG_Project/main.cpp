@@ -550,7 +550,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 20.0f;
+	gBossHpMax = 15.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -664,7 +664,7 @@ void totheloading(int value)
 	player.setScale(glm::vec3(0.0f));
 	bullets.clear();
 
-	glutTimerFunc(5000, loadingto, 53); // 5초 후에 다음 스테이지로
+	glutTimerFunc(4000, loadingto, 53); // 5초 후에 다음 스테이지로
 }
 
 
