@@ -478,7 +478,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
-	gBossHpMax = 3.0f;
+	gBossHpMax = 45.0f;
 	bullets.clear();
 	int wide = 24;
 	for (int i = 0; i < wide * 3; ++i)
@@ -496,7 +496,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 3.0f;
+	gBossHpMax = 15.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -592,7 +592,7 @@ void loadingto(int value)
 	currentStage = nextStage;
 	if (currentStage == 1) CreateBulletPaze_1();
 	else if (currentStage == 2) CreateBulletPaze_2();
-	else gBossHpMax = 3.0f;
+	else gBossHpMax = 90.0f;
 	playersetting();
 }
 
@@ -925,7 +925,7 @@ GLvoid drawScene()
 		}
 		else
 		{
-			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -80.0f));
+			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -89.0f));
 			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
 		}
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
