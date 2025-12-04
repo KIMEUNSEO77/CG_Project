@@ -363,7 +363,7 @@ void BulletTimer(int value)
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
-			//b.update_first_paze(deltaTime);
+			b.update_first_paze(deltaTime);
 			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
