@@ -23,7 +23,7 @@ bool InitSound()
         return false;
     }
 
-    // 초기화 (채널 32개 정도면 충분)
+    // 초기화
     result = gFmodSystem->init(32, FMOD_INIT_NORMAL, nullptr);
     if (result != FMOD_OK)
     {
@@ -31,15 +31,14 @@ bool InitSound()
         return false;
     }
 
-    // ==== BGM 로드 ====
-    // 실행 파일(.exe)과 같은 폴더에 paze0~3, Loading.mp3 있다고 가정
-    gFmodSystem->createSound("paze0.wav",
+    // BGM 로드
+    gFmodSystem->createSound("0paze.wav",
         FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &gBgmPaze[0]);
-    gFmodSystem->createSound("paze1.mp3",
+    gFmodSystem->createSound("1paze.mp3",
         FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &gBgmPaze[1]);
-    gFmodSystem->createSound("paze2.mp3",
+    gFmodSystem->createSound("2paze.mp3",
         FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &gBgmPaze[2]);
-    gFmodSystem->createSound("paze3.mp3",
+    gFmodSystem->createSound("3paze.mp3",
         FMOD_DEFAULT | FMOD_LOOP_NORMAL, 0, &gBgmPaze[3]);
 
     gFmodSystem->createSound("Loading.mp3",
@@ -48,7 +47,7 @@ bool InitSound()
     return true;
 }
 
-// 하나의 BGM만 재생하도록 도와주는 함수
+// 하나의 BGM만 재생하도록
 void PlayBGM(FMOD::Sound* bgm)
 {
     if (!gFmodSystem) return;
@@ -66,7 +65,7 @@ void PlayBGM(FMOD::Sound* bgm)
     }
 }
 
-// (선택) 종료 시 정리용
+// 종료
 void ReleaseSound()
 {
     for (int i = 0; i < 4; ++i)
