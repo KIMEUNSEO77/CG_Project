@@ -91,6 +91,8 @@ void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 	GLint colorLoc = glGetUniformLocation(shaderProgramID, "objectColor");
 	glUniform3f(colorLoc, color.x, color.y, color.z);
 
+	
+
 	// VAO와 VBO는 이미 main.cpp에서 바인드되어 있으므로
 	// 바로 그리기만 하면 됨
 	// gPlayer.count를 외부에서 받아야 하지만, 

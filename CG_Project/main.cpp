@@ -891,6 +891,11 @@ GLvoid drawScene()
 	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
 	//glDrawArrays(GL_TRIANGLES, 0, 8448);
 
+	// 깊이 버퍼만 클리어 - 비행기만의 깊이 공간 확보
+	// 이렇게 하면 비행기 자체의 깊이 관계는 유지되면서(그림자 정상)
+	// 총알보다 뒤에 그려지는 효과를 얻을 수 있음
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
 	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
 	
@@ -904,7 +909,7 @@ GLvoid drawScene()
 	scaleSphereModel = glm::scale(scaleSphereModel, glm::vec3(3.0f)); // 구체 크기 조정
 	debugSphereModel = debugSphereModel * scaleSphereModel;
 	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
-	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+	
 
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
@@ -914,7 +919,10 @@ GLvoid drawScene()
 	{
 		b.render(shaderProgramID, gSphere.vao, gSphere.vbo, bulletVertices);
 	}
-	
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+
 	glBindVertexArray(0);
 
 	// hp bar draw
