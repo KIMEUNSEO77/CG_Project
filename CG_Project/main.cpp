@@ -93,6 +93,8 @@ float gBossHpRatio = 1.0f;  // 0.0~1.0
 float flightangle = 0.0f;
 float flightangleradian = 0.0f;
 
+void totheloading(int value);
+
 void UpdateBossHpTimer()
 {
 	// 프로그램 시작 후 경과 시간
@@ -108,12 +110,22 @@ void UpdateBossHpTimer()
 	float elapsed = now - gBossHpStartTime;  // 얼마만큼 지났는지 (초)
 	float remaining = gBossHpMax - elapsed;  // 1초에 1씩 줄어듦
 
-	if (remaining < 0.0f) remaining = 0.0f;
+	if (remaining < 0.0f) {
+		remaining = 0.0f;
+
+		// 보스 체력 0 도달 시 처리 (예: 게임 클리어)
+		if (currentStage == 3) {
+			nextStage = 4;  // 게임 클리어로 전환
+		}
+		else {
+			totheloading(0);
+		}
+	}
 
 	gBossHpRatio = remaining / gBossHpMax;   // 0.0 ~ 1.0
 }
 
-void totheloading(int value);
+
 
 void collidecheck() 
 {
