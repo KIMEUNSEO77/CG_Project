@@ -568,20 +568,23 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':
+	case 'A':
 		player.setLeftKeyDown();
 		break;
 	case 'd':
-		
+	case 'D':
 		player.setRightKeyDown();
 		break;
 	case 'w':
+	case 'W':
 		player.setUpKeyDown();
 		break;
 	case 's':
+	case 'S':
 		player.setDownKeyDown();
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
-	case 'q': exit(0); break;   // quit
+	case 'q': case 'Q': exit(0); break;   // quit
 	}
 
 	if (currentStage == 0) {
@@ -595,15 +598,19 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':
+	case 'A':
 		player.resetLeftKeyDown();
 		break;
 	case 'd':
+	case 'D':
 		player.resetRightKeyDown();
 		break;
 	case 'w':
+	case 'W':
 		player.resetUpKeyDown();
 		break;
 	case 's':
+	case 'S':
 		player.resetDownKeyDown();
 		break;
 	case '+':
