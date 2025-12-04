@@ -977,10 +977,10 @@ GLvoid drawScene()
 		glm::mat4 icon_boss = glm::mat4(1.0f);
 		if (currentStage == 3)
 		{
-			icon_boss = glm::translate(icon_boss, glm::vec3(11.0f, 5.5f, -10.0f));
+			icon_boss = glm::translate(icon_boss, glm::vec3(11.5f, 6.0f, -10.0f));
 			icon_boss = glm::scale(icon_boss, glm::vec3(5.0f, 5.0f, 0.01f));
 		}
-		else
+		else if (currentStage == 1 || currentStage == 2)
 		{
 			icon_boss = glm::translate(icon_boss, glm::vec3(41.0f, 21.0f, -60.0f));
 			icon_boss = glm::scale(icon_boss, glm::vec3(20.0f, 20.0f, 0.01f));
@@ -991,10 +991,10 @@ GLvoid drawScene()
 		glm::mat4 icon_player = glm::mat4(1.0f);
 		if (currentStage == 3)
 		{
-			icon_player = glm::translate(icon_player, glm::vec3(-11.0f, 5.5f, -10.0f));
+			icon_player = glm::translate(icon_player, glm::vec3(-11.8f, 6.2f, -10.0f));
 			icon_player = glm::scale(icon_player, glm::vec3(4.0f, 4.0f, 0.01f));
 		}
-		else
+		else if (currentStage == 1 || currentStage == 2)
 		{
 			icon_player = glm::translate(icon_player, glm::vec3(-42.0f, 20.0f, -60.0f));
 			icon_player = glm::scale(icon_player, glm::vec3(20.0f, 20.0f, 0.01f));
