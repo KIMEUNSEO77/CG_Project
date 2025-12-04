@@ -960,6 +960,7 @@ GLvoid drawScene()
 	// 총알보다 뒤에 그려지는 효과를 얻을 수 있음
 	glClear(GL_DEPTH_BUFFER_BIT);
 
+	
 	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
 	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
 	
@@ -985,7 +986,10 @@ GLvoid drawScene()
 	}
 
 	glClear(GL_DEPTH_BUFFER_BIT);
-	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+
+	if (player.getSensitivity()) {
+		DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+	}
 
 	glBindVertexArray(0);
 
