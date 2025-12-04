@@ -93,6 +93,9 @@ float gBossHpRatio = 1.0f;  // 0.0~1.0
 float flightangle = 0.0f;
 float flightangleradian = 0.0f;
 
+// for 3 stage bullet timer
+float bulletspawntimer = 0.0f;
+
 void totheloading(int value);
 
 void UpdateBossHpTimer()
@@ -392,6 +395,8 @@ void BulletTimer(int value)
 	{
 		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 
+		t = t - bulletspawntimer;
+
 		glm::vec3 ppos = player.getPosition();
 		for (auto& b : bullets)
 		{
@@ -592,7 +597,10 @@ void loadingto(int value)
 	currentStage = nextStage;
 	if (currentStage == 1) CreateBulletPaze_1();
 	else if (currentStage == 2) CreateBulletPaze_2();
-	else gBossHpMax = 90.0f;
+	else {
+		gBossHpMax = 90.0f;
+		bulletspawntimer = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+	}
 	playersetting();
 }
 
