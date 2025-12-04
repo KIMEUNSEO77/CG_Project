@@ -615,6 +615,7 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 // for stage setting
 void loadingto(int value)
 {
+	player.setCurrentHp(player.getMaxHp()); // hp full restore
 	gBossTimerStarted = false; // reset boss timer
 	currentStage = nextStage;
 	if (currentStage == 1) CreateBulletPaze_1();
