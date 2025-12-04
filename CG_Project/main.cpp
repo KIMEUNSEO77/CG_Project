@@ -612,6 +612,25 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	}
 }
 
+void SpecialKeyboard(int key, int x, int y) {
+	
+	if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R) {
+		player.setSensitivity(1);
+	}
+	
+	glutPostRedisplay(); 
+}
+
+void SpecialKeyboardUp(int key, int x, int y) {
+	
+	if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R) {
+		player.setSensitivity(0);
+	}
+
+	
+	glutPostRedisplay();
+}
+
 // for stage setting
 void loadingto(int value)
 {
@@ -709,6 +728,8 @@ int main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
 	glutKeyboardUpFunc(KeyboardUp);
+	glutSpecialFunc(SpecialKeyboard);      // Special 키 입력 콜백
+	glutSpecialUpFunc(SpecialKeyboardUp);  // Special 키 떼기 콜백
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
