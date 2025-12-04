@@ -91,6 +91,8 @@ void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 	GLint colorLoc = glGetUniformLocation(shaderProgramID, "objectColor");
 	glUniform3f(colorLoc, color.x, color.y, color.z);
 
+	
+
 	// VAO와 VBO는 이미 main.cpp에서 바인드되어 있으므로
 	// 바로 그리기만 하면 됨
 	// gPlayer.count를 외부에서 받아야 하지만, 
@@ -162,7 +164,7 @@ void Bullet::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 
 }
 
-bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& playerPosWorld)
+bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, Player& player)
 {
 	// -------------------------------------------------------
 	// 1. 총알 (Bullet) 투영 -> 화면상 영역(타원) 계산
@@ -188,9 +190,15 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	// 2. 플레이어 (Player) 투영 -> 화면상 원(Circle) 계산
 	// -------------------------------------------------------
 	// 플레이어 충돌 판정 위치 계산 (debugSphereModel과 동일)
-	glm::vec3 playerCollisionPos = playerPosWorld;
-	playerCollisionPos.z += 0.3f; // 구체가 플레이어 앞에 위치
-	playerCollisionPos.y -= 0.3f; // 구체가 플레이어 아래에 위치
+	glm::vec3 playerPosWorld = player.getPosition();
+	glm::vec3 playerScale = player.getScale();
+	
+	// deltaPos 계산: player scale을 적용한 오프셋
+	glm::vec3 deltaPos = glm::vec3(0.0f, -0.6f, 0.1f);
+	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), playerScale);
+	deltaPos = glm::vec3(scaleSphereModel * glm::vec4(deltaPos, 1.0f));
+	
+	glm::vec3 playerCollisionPos = playerPosWorld + deltaPos;
 	
 	glm::vec4 playerPos = glm::vec4(playerCollisionPos, 1.0f);
 	glm::vec4 playerViewPos = view * playerPos;
@@ -204,10 +212,11 @@ bool Bullet::collide(const glm::mat4& view, const glm::mat4& proj, glm::vec3& pl
 	float px_ndc = playerViewPos.x * proj[0][0] / playerDepth;
 	float py_ndc = playerViewPos.y * proj[1][1] / playerDepth;
 	
-	// 플레이어의 화면상 반지름 계산 (debugSphereModel의 scale: 1.3f)
-	const float PLAYER_RADIUS = 0.5f;
-	float p_radius_x_ndc = PLAYER_RADIUS * proj[0][0] / playerDepth / 2;
-	float p_radius_y_ndc = PLAYER_RADIUS * proj[1][1] / playerDepth / 2;
+	// 플레이어의 화면상 반지름 계산
+	// debugSphereModel: scale = playerScale * 3.0f
+	glm::vec3 sphereScale = playerScale * 1.0f;
+	float p_radius_x_ndc = sphereScale.x * proj[0][0] / playerDepth / 2;
+	float p_radius_y_ndc = sphereScale.y * proj[1][1] / playerDepth / 2;
 
 
 	// -------------------------------------------------------

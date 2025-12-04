@@ -46,7 +46,7 @@ GLuint tex_LOADING;
 GLuint tex_floating;
 
 Player player; // player object(temp)
-int currentStage = 5;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear, 5: loading
+int currentStage = 0;   // current stage 0: title, 1, 2, 3 -1: gameover, 4: gameclear, 5: loading
 int nextStage = 0;    // next stage - before go to loading, set next stage here
 
 std::vector<Bullet> bullets;  // bullet objects
@@ -93,6 +93,11 @@ float gBossHpRatio = 1.0f;  // 0.0~1.0
 float flightangle = 0.0f;
 float flightangleradian = 0.0f;
 
+// for 3 stage bullet timer
+float bulletspawntimer = 0.0f;
+
+void totheloading(int value);
+
 void UpdateBossHpTimer()
 {
 	// 프로그램 시작 후 경과 시간
@@ -108,18 +113,34 @@ void UpdateBossHpTimer()
 	float elapsed = now - gBossHpStartTime;  // 얼마만큼 지났는지 (초)
 	float remaining = gBossHpMax - elapsed;  // 1초에 1씩 줄어듦
 
-	if (remaining < 0.0f) remaining = 0.0f;
+	if (remaining < 0.0f) {
+		remaining = 0.0f;
+
+		// 보스 체력 0 도달 시 처리 (예: 게임 클리어)
+		if (currentStage == 3) {
+			nextStage = 4;  // 게임 클리어로 전환
+			pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+			nextStage = currentStage + 1;
+			currentStage = 4; // loading
+			player.setScale(glm::vec3(0.0f));
+			bullets.clear();
+		}
+		else {
+			totheloading(0);
+		}
+	}
 
 	gBossHpRatio = remaining / gBossHpMax;   // 0.0 ~ 1.0
 }
+
+
 
 void collidecheck() 
 {
 
 	for (auto it = bullets.begin(); it != bullets.end(); )
 	{
-		glm::vec3 pos = player.getPosition();
-		if (it->collide(vTransform, pTransform, pos)) 
+		if (it->collide(vTransform, pTransform, player)) 
 		{
 			// 충돌 시 처리 
 			player.damaged(10.0f); // 10 데미지 입힘
@@ -139,6 +160,29 @@ void startstageangle(float time)
 
 }
 
+void playersetting() {
+
+	if (currentStage == 1) {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
+	}
+	else {
+		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	}
+
+	if (currentStage == 1 || currentStage == 2)
+	{
+		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
+		player.setScale(glm::vec3(0.5f));
+	}
+
+	if (currentStage == 3)
+	{
+		player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		player.setScale(glm::vec3(0.07f));
+		player.setVelocity(glm::vec3(1.5f, 1.5f, 0.0f));
+	}
+	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+}
 
 	// bullet 생성 함수 - 3페이즈에 실행
 void SpawnBullet(int pattern)
@@ -316,12 +360,11 @@ void BulletTimer(int value)
 	if (currentStage == 1)
 	{
 		
-		glm::vec3 ppos = player.getPosition();
 		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
 			b.update_first_paze(deltaTime);
-			if (b.collide(vTransform, pTransform, ppos))
+			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
@@ -337,7 +380,7 @@ void BulletTimer(int value)
 		{
 			b.update_second_paze(deltaTime);
 			
-			if (b.collide(vTransform, pTransform, ppos))
+			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
@@ -350,11 +393,13 @@ void BulletTimer(int value)
 	{
 		float t = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 
+		t = t - bulletspawntimer;
+
 		glm::vec3 ppos = player.getPosition();
 		for (auto& b : bullets)
 		{
 
-			if (b.collide(vTransform, pTransform, ppos))
+			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
 				// 필요하면 총알 지우기
@@ -436,6 +481,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
+	gBossHpMax = 45.0f;
 	bullets.clear();
 	int wide = 24;
 	for (int i = 0; i < wide * 3; ++i)
@@ -453,6 +499,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
+	gBossHpMax = 15.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -515,6 +562,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
 	case 'q': exit(0); break;   // quit
 	}
+
+	if (currentStage == 0) {
+		totheloading(0);
+	}
 }
 
 
@@ -537,6 +588,31 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	}
 }
 
+// for stage setting
+void loadingto(int value)
+{
+	gBossTimerStarted = false; // reset boss timer
+	currentStage = nextStage;
+	if (currentStage == 1) CreateBulletPaze_1();
+	else if (currentStage == 2) CreateBulletPaze_2();
+	else {
+		gBossHpMax = 90.0f;
+		bulletspawntimer = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+	}
+	playersetting();
+}
+
+
+void totheloading(int value)
+{
+	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	nextStage = currentStage + 1;
+	currentStage = 5; // loading
+	player.setScale(glm::vec3(0.0f));
+	bullets.clear();
+
+	glutTimerFunc(5000, loadingto, 53); // 5초 후에 다음 스테이지로
+}
 
 
 
@@ -570,12 +646,7 @@ void InitTransformsAndLighting()
 	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
 
 	// Initialize projection transform
-	if (currentStage == 1) {
-		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
-	}
-	else {
-		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-	}
+	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
 }
 
@@ -621,8 +692,8 @@ int main(int argc, char** argv)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// bullet insert
-	if (currentStage == 1) CreateBulletPaze_1();
-	if (currentStage == 2) CreateBulletPaze_2();
+	//if (currentStage == 1) CreateBulletPaze_1();
+	//if (currentStage == 2) CreateBulletPaze_2();
 
 	make_vertexShaders();
 	make_fragmentShaders();
@@ -664,19 +735,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	if (currentStage == 1 || currentStage == 2) 
-	{
-		player.setPosition(glm::vec3(0.0f, 0.0f, -50.0f));
-		player.setScale(glm::vec3(0.5f));
-	}
-
-	if (currentStage == 3)
-	{
-		player.setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		player.setScale(glm::vec3(0.07f));
-		player.setVelocity(glm::vec3(1.5f, 1.5f, 0.0f));
-	}
-	player.setColor(glm::vec3(0.2f, 0.8f, 1.0f));
+	// player setting
 
 	glutMainLoop();
 
@@ -829,8 +888,31 @@ GLvoid drawScene()
 
 	std::vector<float> bulletVertices; // temp
 
+	// boss draw
+	if (currentStage == 1 || currentStage == 2 || currentStage == 3) {
+		// boss cube draw
+		glm::mat4 model = glm::mat4(1.0f);
+		if (currentStage == 3)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
+			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
+		}
+		else
+		{
+			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -89.0f));
+			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+		}
+		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
+	}
+	glUseProgram(shaderProgramID);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
 	//glDrawArrays(GL_TRIANGLES, 0, 8448);
+
+	// 깊이 버퍼만 클리어 - 비행기만의 깊이 공간 확보
+	// 이렇게 하면 비행기 자체의 깊이 관계는 유지되면서(그림자 정상)
+	// 총알보다 뒤에 그려지는 효과를 얻을 수 있음
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
 	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
@@ -845,7 +927,7 @@ GLvoid drawScene()
 	scaleSphereModel = glm::scale(scaleSphereModel, glm::vec3(3.0f)); // 구체 크기 조정
 	debugSphereModel = debugSphereModel * scaleSphereModel;
 	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
-	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+	
 
 	glBindVertexArray(gSphere.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, gSphere.vbo);
@@ -855,27 +937,16 @@ GLvoid drawScene()
 	{
 		b.render(shaderProgramID, gSphere.vao, gSphere.vbo, bulletVertices);
 	}
-	
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+
 	glBindVertexArray(0);
 
 	// hp bar draw
 	if (currentStage == 1 || currentStage == 2 || currentStage == 3)
 	{
 		DrawHPBars(player);
-
-		// boss cube draw
-		glm::mat4 model = glm::mat4(1.0f);
-		if (currentStage == 3)
-		{
-			model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
-			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
-		}
-		else
-		{
-			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -80.0f));
-			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
-		}
-		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
 
 		// boss icon
 		glm::mat4 icon_boss = glm::mat4(1.0f);
@@ -1012,3 +1083,4 @@ GLvoid Reshape(int w, int h)
 	height = h;
 	glViewport(0, 0, w, h);
 }
+
