@@ -550,7 +550,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 15.0f;
+	gBossHpMax = 14.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
