@@ -448,7 +448,7 @@ void BulletTimer(int value)
 	
 	if (colidecheck)
 	{
-		if (0 <= player.getCurrentHp()) {
+		if (player.getCurrentHp() <= 0) {
 			if (!immortalMode) {
 				pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
