@@ -606,6 +606,9 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	case 's':
 		player.resetDownKeyDown();
 		break;
+	case '+':
+		immortalMode = !immortalMode; // toggle immortal mode
+		break;
 	}
 }
 
