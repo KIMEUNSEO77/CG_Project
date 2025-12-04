@@ -16,6 +16,7 @@
 #include "Object.h"
 #include "sphere_obj_load.h"
 #include "texture_load.h"  // load texture
+#include "sound_load.h"    // load sound
 
 GLvoid drawScene();
 GLvoid Reshape(int w, int h);
@@ -100,6 +101,47 @@ float bulletspawntimer = 0.0f;
 
 void totheloading(int value);
 
+// currentStage에 따라 BGM 재생
+void UpdateBGMByStage()
+{
+	if (!gFmodSystem) return;
+
+	// 스테이지가 안 바뀌었으면 그대로
+	if (currentStage == gLastBGMStage)
+		return;
+
+	gLastBGMStage = currentStage;
+
+	FMOD::Sound* bgm = nullptr;
+
+	switch (currentStage)
+	{
+	case 0: // 타이틀
+		bgm = gBgmPaze[0];
+		break;
+	case 1: // 1페이즈
+		bgm = gBgmPaze[1];
+		break;
+	case 2: // 2페이즈
+		bgm = gBgmPaze[2];
+		break;
+	case 3: // 3페이즈
+		bgm = gBgmPaze[3];
+		break;
+	case 5: // 로딩
+		bgm = gBgmLoading; break;
+
+	case 4: // Game Clear
+		bgm = nullptr; break;
+	case -1: // Game Over
+		bgm = nullptr; break;
+
+	default: bgm = nullptr; break;
+	}
+
+	PlayBGM(bgm);
+}
+
 void UpdateBossHpTimer()
 {
 	// 프로그램 시작 후 경과 시간
@@ -118,7 +160,7 @@ void UpdateBossHpTimer()
 	if (remaining < 0.0f) {
 		remaining = 0.0f;
 
-		// 보스 체력 0 도달 시 처리 (예: 게임 클리어)
+		// 보스 체력 0 도달 시 처리
 		if (currentStage == 3) {
 			nextStage = 4;  // 게임 클리어로 전환
 			pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
@@ -144,10 +186,8 @@ void collidecheck()
 	{
 		if (it->collide(vTransform, pTransform, player)) 
 		{
-			// 충돌 시 처리 
+			// 충돌 시
 			player.damaged(10.0f); // 10 데미지 입힘
-			// 충돌한 총알 제거
-			//it = bullets.erase(it);
 		}
 		else {
 			++it;
@@ -362,17 +402,14 @@ void BulletTimer(int value)
 
 	player.move(deltaTime, vTransform, pTransform);
 	if (currentStage == 1)
-	{
-		
-		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+	{	
+		// 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
 			b.update_first_paze(deltaTime);
 			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
-				// 필요하면 총알 지우기
-				// b를 erase 해야 하면 구조 조금 바꿔야 함
 				colidecheck = 1;
 			}
 		}
@@ -380,7 +417,7 @@ void BulletTimer(int value)
 	else if (currentStage == 2)
 	{
 		glm::vec3 ppos = player.getPosition();
-		// 여기에 1,2페이즈에 사용할 타이머 기능 구현
+		// 1,2페이즈에 사용할 타이머 기능 구현
 		for (auto& b : bullets)
 		{
 			b.update_second_paze(deltaTime);
@@ -388,8 +425,6 @@ void BulletTimer(int value)
 			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
-				// 필요하면 총알 지우기
-				// b를 erase 해야 하면 구조 조금 바꿔야 함
 				colidecheck = 1;
 			}
 		}
@@ -408,8 +443,6 @@ void BulletTimer(int value)
 			if (b.collide(vTransform, pTransform, player))
 			{
 				player.damaged(10.0f);   // HP 깎기
-				// 필요하면 총알 지우기
-				// b를 erase 해야 하면 구조 조금 바꿔야 함
 				colidecheck = 1;
 			}
 		}
@@ -480,7 +513,6 @@ void UpdateBullets()
 			}
 			else
 			{
-				// 이동 및 유지
 				glm::vec3 vel = it->getVelocity();
 				pos += vel * 0.05f;
 				it->setPosition(pos);
@@ -489,7 +521,6 @@ void UpdateBullets()
 		}
 	}
 	else {
-		// 기존 방식 유지
 		for (Bullet& b : bullets)
 		{
 			glm::vec3 pos = b.getPosition();
@@ -511,7 +542,6 @@ void CreateBulletPaze_1()
 		Bullet* b = new Bullet();
 		b->setPosition(glm::vec3(-72.0f + xgap, bulletYDistribution(generator), bulletZDistribution(generator)));
 		glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
-		//b->setScale(glm::vec3(1.0f));
 		b->setColor(color1);
 
 		bullets.push_back(*b);
@@ -520,7 +550,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 20.0f;
+	gBossHpMax = 15.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -542,7 +572,6 @@ void CreateBulletPaze_2()
 			glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -50.0f));
 			rotatedPos = translationMatrix * rotatedPos;
 			b->setPosition(glm::vec3(rotatedPos));
-			//b->setPosition(glm::vec3(initialPos));
 			glm::vec3 color1(colorDistribution(generator), colorDistribution(generator), colorDistribution(generator));
 			b->setColor(color1);
 			b->setScale(glm::vec3(bulletscale));
@@ -570,8 +599,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'a':
 		player.setLeftKeyDown();
 		break;
-	case 'd':
-		
+	case 'd':		
 		player.setRightKeyDown();
 		break;
 	case 'w':
@@ -636,7 +664,7 @@ void totheloading(int value)
 	player.setScale(glm::vec3(0.0f));
 	bullets.clear();
 
-	glutTimerFunc(5000, loadingto, 53); // 5초 후에 다음 스테이지로
+	glutTimerFunc(4000, loadingto, 53); // 5초 후에 다음 스테이지로
 }
 
 
@@ -686,6 +714,10 @@ int main(int argc, char** argv)
 	glewExperimental = GL_TRUE;
 	glewInit();
 
+	// sound init
+	if (!InitSound()) std::cerr << "사운드 초기화 실패\n";
+	
+
 	InitCube();  // boss cube init
 	tex_bg = LoadTexture("CG_BackGround.png");  // background texture load
 	tex_boss = LoadTexture("boss_image.png"); // boss texture load
@@ -715,10 +747,6 @@ int main(int argc, char** argv)
 	// use alpha blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// bullet insert
-	//if (currentStage == 1) CreateBulletPaze_1();
-	//if (currentStage == 2) CreateBulletPaze_2();
 
 	make_vertexShaders();
 	make_fragmentShaders();
@@ -759,8 +787,6 @@ int main(int argc, char** argv)
 		std::cerr << "Failed to load airplane.obj\n";
 		return 1;
 	}
-
-	// player setting
 
 	glutMainLoop();
 
@@ -839,7 +865,7 @@ void DrawBossCube(
 ) {
 	glUseProgram(shader);
 
-	// ---- Uniform location ----
+	// Uniform location
 	GLint locModel = glGetUniformLocation(shader, "model");
 	GLint locView = glGetUniformLocation(shader, "view");
 	GLint locProj = glGetUniformLocation(shader, "projection");
@@ -850,18 +876,18 @@ void DrawBossCube(
 	GLint locLightOn = glGetUniformLocation(shader, "lightOn");
 	GLint locTex = glGetUniformLocation(shader, "outTexture");
 
-	// ---- Set uniforms ----
+	// Set uniforms
 	glUniformMatrix4fv(locModel, 1, GL_FALSE, &model[0][0]);
 	glUniformMatrix4fv(locView, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(locProj, 1, GL_FALSE, &projection[0][0]);
 	
-	// Boss는 텍스처 색 그대로 쓰므로 objectColor = white
+	// 텍스처 색 그대로 objectColor = white
 	glUniform3f(locObjColor, 1.0f, 1.0f, 1.0f);
 	glUniform3f(locLightColor, 1.0f, 1.0f, 1.0f);
 	glUniform3f(locLightPos, lightPos.x, lightPos.y, lightPos.z);
 	glUniform3f(locViewPos, cameraPos.x, cameraPos.y, cameraPos.z);
 
-	// 조명 끄고(텍스처만 보이게)
+	// 조명 끔
 	glUniform1i(locLightOn, 0);
 
 	// Texture binding
@@ -869,7 +895,6 @@ void DrawBossCube(
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glUniform1i(locTex, 0);
 
-	// ---- Draw cube ----
 	glBindVertexArray(vao);
 	glDrawArrays(GL_TRIANGLES, 30, 6);
 	glBindVertexArray(0);
@@ -879,6 +904,12 @@ void DrawBossCube(
 
 GLvoid drawScene()
 {
+	// current stage BGM play
+	UpdateBGMByStage();
+
+	// FMOD update
+	if (gFmodSystem) gFmodSystem->update();
+
 	UpdateBullets();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -920,27 +951,26 @@ GLvoid drawScene()
 		if (currentStage == 3)
 		{
 			model = glm::translate(model, glm::vec3(0.0f, -1.0f, -10.0f));
-			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));  // 납작하게
+			model = glm::scale(model, glm::vec3(22.0f, 22.0f, 0.01f));
 		}
 		else
 		{
 			model = glm::translate(model, glm::vec3(0.0f, -5.0f, -89.0f));
-			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));  // 납작하게
+			model = glm::scale(model, glm::vec3(80.0f, 80.0f, 0.01f));
 		}
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_boss, model, cameraPos, lightPos, vTransform, pTransform);
 	}
 	glUseProgram(shaderProgramID);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	player.render(shaderProgramID, gPlayer.vao, gPlayer.vbo, bulletVertices);
-	//glDrawArrays(GL_TRIANGLES, 0, 8448);
 
 	// 깊이 버퍼만 클리어 - 비행기만의 깊이 공간 확보
-	// 이렇게 하면 비행기 자체의 깊이 관계는 유지되면서(그림자 정상)
-	// 총알보다 뒤에 그려지는 효과를 얻을 수 있음
+	// 이렇게 하면 비행기 자체의 깊이 관계는 유지
+	// 총알보다 뒤에 그림
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
-	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
+	// 플레이어 위치에 연한 주황색 구체
+	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale());
 	
 	glm::vec3 playerPos = player.getPosition();
 	glm::vec3 deltaPos = glm::vec3(0.0f, -0.6f, 0.1f);
@@ -949,9 +979,9 @@ GLvoid drawScene()
 
 	playerPos += deltaPos;
 	glm::mat4 debugSphereModel = glm::translate(glm::mat4(1.0f), playerPos);
-	scaleSphereModel = glm::scale(scaleSphereModel, glm::vec3(3.0f)); // 구체 크기 조정
+	scaleSphereModel = glm::scale(scaleSphereModel, glm::vec3(3.0f));
 	debugSphereModel = debugSphereModel * scaleSphereModel;
-	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색 (R=1.0, G=0.7, B=0.4)
+	glm::vec3 lightOrangeColor = glm::vec3(1.0f, 0.85f, 0.7f); // 연한 주황색
 	
 
 	glBindVertexArray(gSphere.vao);
@@ -977,10 +1007,10 @@ GLvoid drawScene()
 		glm::mat4 icon_boss = glm::mat4(1.0f);
 		if (currentStage == 3)
 		{
-			icon_boss = glm::translate(icon_boss, glm::vec3(11.0f, 5.5f, -10.0f));
+			icon_boss = glm::translate(icon_boss, glm::vec3(11.5f, 6.0f, -10.0f));
 			icon_boss = glm::scale(icon_boss, glm::vec3(5.0f, 5.0f, 0.01f));
 		}
-		else
+		else if (currentStage == 1 || currentStage == 2)
 		{
 			icon_boss = glm::translate(icon_boss, glm::vec3(41.0f, 21.0f, -60.0f));
 			icon_boss = glm::scale(icon_boss, glm::vec3(20.0f, 20.0f, 0.01f));
@@ -991,10 +1021,10 @@ GLvoid drawScene()
 		glm::mat4 icon_player = glm::mat4(1.0f);
 		if (currentStage == 3)
 		{
-			icon_player = glm::translate(icon_player, glm::vec3(-11.0f, 5.5f, -10.0f));
+			icon_player = glm::translate(icon_player, glm::vec3(-11.8f, 6.2f, -10.0f));
 			icon_player = glm::scale(icon_player, glm::vec3(4.0f, 4.0f, 0.01f));
 		}
-		else
+		else if (currentStage == 1 || currentStage == 2)
 		{
 			icon_player = glm::translate(icon_player, glm::vec3(-42.0f, 20.0f, -60.0f));
 			icon_player = glm::scale(icon_player, glm::vec3(20.0f, 20.0f, 0.01f));
@@ -1070,8 +1100,6 @@ GLvoid drawScene()
 		model_3 = glm::rotate(model_3, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model_3 = glm::scale(model_3, glm::vec3(20.0f, 20.0f, 0.01f));
 		DrawBossCube(bossShaderProgramID, cubeVAO, tex_floating, model_3, cameraPos, lightPos, vTransform, pTransform);
-
-		//sin(glm::radians(flightangleradian)) * 30.0f;
 
 		model_3 = glm::mat4(1.0f);
 		model_3 = glm::translate(model_3, glm::vec3(-8.0f, sin(glm::radians(flightangleradian) + 1.57f) * 1.5f - 5.0f, -10.0f));
