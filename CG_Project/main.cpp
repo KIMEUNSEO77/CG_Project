@@ -116,6 +116,11 @@ void UpdateBossHpTimer()
 		// 보스 체력 0 도달 시 처리 (예: 게임 클리어)
 		if (currentStage == 3) {
 			nextStage = 4;  // 게임 클리어로 전환
+			pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+			nextStage = currentStage + 1;
+			currentStage = 4; // loading
+			player.setScale(glm::vec3(0.0f));
+			bullets.clear();
 		}
 		else {
 			totheloading(0);
@@ -154,7 +159,7 @@ void startstageangle(float time)
 }
 
 void playersetting() {
-	// Initialize projection transform
+
 	if (currentStage == 1) {
 		pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 50.0f, 100.0f);
 	}
@@ -473,7 +478,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
-	gBossHpMax = 45.0f;
+	gBossHpMax = 3.0f;
 	bullets.clear();
 	int wide = 24;
 	for (int i = 0; i < wide * 3; ++i)
@@ -491,7 +496,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 15.0f;
+	gBossHpMax = 3.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
@@ -594,6 +599,7 @@ void loadingto(int value)
 
 void totheloading(int value)
 {
+	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	nextStage = currentStage + 1;
 	currentStage = 5; // loading
 	player.setScale(glm::vec3(0.0f));
@@ -633,7 +639,8 @@ void InitTransformsAndLighting()
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	vTransform = glm::lookAt(cameraPos, cameraDirection, cameraUp);
 
-	
+	// Initialize projection transform
+	pTransform = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
 }
 
