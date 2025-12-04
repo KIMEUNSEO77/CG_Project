@@ -552,7 +552,25 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	}
 }
 
-// 
+// for stage setting
+void loadingto(int value)
+{
+	currentStage = nextStage;
+	if (currentStage == 1) CreateBulletPaze_1();
+	if (currentStage == 2) CreateBulletPaze_2();
+	playersetting();
+}
+
+
+void totheloading(int value)
+{
+	nextStage = currentStage + 1;
+	currentStage = 5; // loading
+	player.setScale(glm::vec3(0.0f));
+	bullets.clear();
+
+	glutTimerFunc(5000, loadingto, 53); // 5초 후에 다음 스테이지로
+}
 
 
 
