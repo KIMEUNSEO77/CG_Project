@@ -502,7 +502,7 @@ void UpdateBullets()
 
 void CreateBulletPaze_1()
 {
-	gBossHpMax = 45.0f;
+	gBossHpMax = 25.0f;
 	bullets.clear();
 	int wide = 24;
 	for (int i = 0; i < wide * 3; ++i)
@@ -520,7 +520,7 @@ void CreateBulletPaze_1()
 
 void CreateBulletPaze_2()
 {
-	gBossHpMax = 15.0f;
+	gBossHpMax = 20.0f;
 	bullets.clear();
 	float xangle = bulletAngleDistribution(generator);
 	
