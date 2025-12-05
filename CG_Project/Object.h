@@ -86,6 +86,7 @@ private:
 	int right_keydown;
 	int up_keydown;
 	int down_keydown;
+	int sensitivity; // 민감도 (0: 일반, 1: 느린 이동)
 
 public:
 	Player()
@@ -100,6 +101,7 @@ public:
 		right_keydown = 0;
 		up_keydown = 0;
 		down_keydown = 0;
+		sensitivity = 0; // 기본값: 일반 속도
 	}
 	void move(float deltaTime, const glm::mat4& view, const glm::mat4& proj);
 	void render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vector<float>& vertices) override;
@@ -119,10 +121,14 @@ public:
 	void resetDownKeyDown() { down_keydown = 0; }
 
 	
+	
 	int getLeftKeyDown() const { return left_keydown; }
 	int getRightKeyDown() const { return right_keydown; }
 	int getUpKeyDown() const { return up_keydown; }
 	int getDownKeyDown() const { return down_keydown; }
+	
+	void setSensitivity(int value) { sensitivity = value; }
+	int getSensitivity() const { return sensitivity; }
 };
 
 
@@ -133,7 +139,7 @@ private:
 	float damage;
 	float vy = 0.0f; // y축 속도 (중력 적용용)
 	static int sharedMeshCount;  // 공유 메쉬의 vertex count
-
+	int sensitivity = 0; // move 민감도 조절용
 public:
 	Bullet()
 	{
@@ -155,6 +161,14 @@ public:
 	void update_first_paze(float deltaTime);
 	void update_second_paze(float deltaTime);
 	bool collide(const glm::mat4& view, const glm::mat4& proj, Player& player);
+	void setSensitivity(int value)
+	{
+		sensitivity = value;
+	}
+	int getSensitivity() const
+	{
+		return sensitivity;
+	}
 };
 
 

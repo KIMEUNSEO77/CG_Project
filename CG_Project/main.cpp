@@ -597,19 +597,23 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':
+	case 'A':
 		player.setLeftKeyDown();
 		break;
-	case 'd':		
+	case 'd':
+	case 'D':
 		player.setRightKeyDown();
 		break;
 	case 'w':
+	case 'W':
 		player.setUpKeyDown();
 		break;
 	case 's':
+	case 'S':
 		player.setDownKeyDown();
 		break;
 	case 'y': if (angleCameraY == 0.0f) angleCameraY = 90.0f; else angleCameraY = 0.0f; break; // toggle camera rotation
-	case 'q': exit(0); break;   // quit
+	case 'q': case 'Q': exit(0); break;   // quit
 	}
 
 	if (currentStage == 0) {
@@ -623,21 +627,44 @@ GLvoid KeyboardUp(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'a':
+	case 'A':
 		player.resetLeftKeyDown();
 		break;
 	case 'd':
+	case 'D':
 		player.resetRightKeyDown();
 		break;
 	case 'w':
+	case 'W':
 		player.resetUpKeyDown();
 		break;
 	case 's':
+	case 'S':
 		player.resetDownKeyDown();
 		break;
 	case '+':
 		immortalMode = !immortalMode; // toggle immortal mode
 		break;
 	}
+}
+
+void SpecialKeyboard(int key, int x, int y) {
+	
+	if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R) {
+		player.setSensitivity(1);
+	}
+	
+	glutPostRedisplay(); 
+}
+
+void SpecialKeyboardUp(int key, int x, int y) {
+	
+	if (key == GLUT_KEY_SHIFT_L || key == GLUT_KEY_SHIFT_R) {
+		player.setSensitivity(0);
+	}
+
+	
+	glutPostRedisplay();
 }
 
 // for stage setting
@@ -741,6 +768,8 @@ int main(int argc, char** argv)
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(Keyboard);
 	glutKeyboardUpFunc(KeyboardUp);
+	glutSpecialFunc(SpecialKeyboard);      // Special 키 입력 콜백
+	glutSpecialUpFunc(SpecialKeyboardUp);  // Special 키 떼기 콜백
 	glutTimerFunc(16, BulletTimer, 0); // start bullet timer
 
 	glEnable(GL_DEPTH_TEST); // depth buffer
@@ -969,8 +998,9 @@ GLvoid drawScene()
 	// 총알보다 뒤에 그림
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	// 플레이어 위치에 연한 주황색 구체
-	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale());
+	
+	// 플레이어 위치에 연한 주황색 구체 그리기 (디버그용)
+	glm::mat4 scaleSphereModel = glm::scale(glm::mat4(1.0f), player.getScale()); // 작은 크기
 	
 	glm::vec3 playerPos = player.getPosition();
 	glm::vec3 deltaPos = glm::vec3(0.0f, -0.6f, 0.1f);
@@ -994,7 +1024,10 @@ GLvoid drawScene()
 	}
 
 	glClear(GL_DEPTH_BUFFER_BIT);
-	DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+
+	if (player.getSensitivity()) {
+		DrawSphere(gSphere, shaderProgramID, debugSphereModel, lightOrangeColor);
+	}
 
 	glBindVertexArray(0);
 

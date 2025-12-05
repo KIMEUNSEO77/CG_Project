@@ -26,6 +26,13 @@ void Player::move(float deltaTime, const glm::mat4& view, const glm::mat4& proj)
 	{
 		// 새로운 위치 계산
 		glm::vec3 newPosition = position;
+
+		if (sensitivity == 1) // 느린 이동
+		{
+			dirx *= 0.5f;
+			diry *= 0.5f;
+		}
+
 		newPosition.x += dirx * speed * deltaTime;
 		newPosition.y += diry * speed * deltaTime;
 
