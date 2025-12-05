@@ -157,7 +157,14 @@ void UpdateBossHpTimer()
 	float elapsed = now - gBossHpStartTime;  // 얼마만큼 지났는지 (초)
 	float remaining = gBossHpMax - elapsed;  // 1초에 1씩 줄어듦
 
-	if (remaining < 0.0f) {
+	if (remaining < 4.0f)
+	{
+		// start fade out BGM
+		StartFadeOutBGM(4.0f);
+	}
+
+	if (remaining < 0.0f) 
+	{
 		remaining = 0.0f;
 
 		// 보스 체력 0 도달 시 처리
@@ -397,6 +404,9 @@ void BulletTimer(int value)
 	clock_t currentTime = clock();
 	float deltaTime = float(currentTime - lastTime) / CLOCKS_PER_SEC;
 	lastTime = currentTime;
+
+	// fade out BGM 업데이트
+	UpdateFadeOutBGM(deltaTime);
 
 	int colidecheck = 0;
 
