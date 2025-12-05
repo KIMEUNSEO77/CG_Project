@@ -112,7 +112,7 @@ void UpdateFadeOutBGM(float deltaTime)
 {
     if (!gIsFadingOut || !gBgmChannel) return;
 
-    gFadeTimer += deltaTime;
+    gFadeTimer += deltaTime * 1.5f;
 
     float t = gFadeTimer / gFadeDuration;
     if (t >= 1.0f)
