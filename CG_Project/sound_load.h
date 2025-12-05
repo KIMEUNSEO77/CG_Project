@@ -89,3 +89,43 @@ void ReleaseSound()
         gFmodSystem = nullptr;
     }
 }
+
+// fade out 기능
+static bool   gIsFadingOut = false;
+static float  gFadeDuration = 0.0f;
+static float  gFadeTimer = 0.0f;
+static float  gFadeStartVolume = 1.0f;
+
+void StartFadeOutBGM(float duration)
+{
+    if (!gBgmChannel) return;
+
+    gIsFadingOut = true;
+    gFadeDuration = duration;
+    gFadeTimer = 0.0f;
+    gFadeStartVolume = 1.0f;
+
+    gBgmChannel->getVolume(&gFadeStartVolume);
+}
+
+void UpdateFadeOutBGM(float deltaTime)
+{
+    if (!gIsFadingOut || !gBgmChannel) return;
+
+    gFadeTimer += deltaTime;
+
+    float t = gFadeTimer / gFadeDuration;
+    if (t >= 1.0f)
+    {
+        // 완전히 꺼졌으면 stop
+        gBgmChannel->setVolume(0.0f);
+        gBgmChannel->stop();
+        gBgmChannel = nullptr;
+        gIsFadingOut = false;
+    }
+    else
+    {
+        float newVol = gFadeStartVolume * (1.0f - t);
+        gBgmChannel->setVolume(newVol);
+    }
+}
