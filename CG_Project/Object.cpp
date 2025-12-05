@@ -90,6 +90,12 @@ void Player::render(GLuint& shaderProgramID, GLuint& VAO, GLuint& VBO, std::vect
 	glm::mat4 modelTransform = glm::mat4(1.0f);
 	modelTransform = glm::translate(modelTransform, position);
 	modelTransform = glm::scale(modelTransform, scale);
+	float dirx = 0.0f;
+	if (left_keydown) dirx -= 1.0f;
+	if (right_keydown) dirx += 1.0f;
+
+	modelTransform = glm::rotate(modelTransform, glm::radians(dirx * 30.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // y rotation
+
 	modelTransform = glm::rotate(modelTransform, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // x축 기준 -90도 회전
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "model");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &modelTransform[0][0]);
